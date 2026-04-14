@@ -1,0 +1,100 @@
+<app-header />
+<main class="flex-1">
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-bl from-burgundy-900 to-burgundy-950 text-white py-16 md:py-24">
+    <div class="container mx-auto px-4 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Burgandy</h1>
+      <p class="text-burgundy-200 text-lg md:text-xl mb-8">اكتشف أحدث صيحات الموضة واحجز قطعتك المفضلة</p>
+      <a routerLink="/products" class="inline-block bg-white text-burgundy-900 font-semibold px-8 py-3 rounded-lg hover:bg-burgundy-100 transition">تصفح المنتجات</a>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <h2 class="text-2xl md:text-3xl font-bold text-burgundy-900 text-center mb-8">التصنيفات</h2>
+      
+      <!-- Loading State -->
+      <div *ngIf="loadingCategories" class="text-center py-8">
+        <app-loading-spinner />
+      </div>
+      
+      <!-- Error State -->
+      <div *ngIf="!loadingCategories && categoriesError" class="bg-red-50 text-red-600 p-4 rounded-lg text-center mb-8">
+        ❌ {{ categoriesError }}
+      </div>
+      
+      <!-- Categories Grid -->
+      <div *ngIf="!loadingCategories && categories.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <a *ngFor="let category of categories" 
+           [routerLink]="['/products']" 
+           [queryParams]="{ categoryId: category.id }"
+           class="group cursor-pointer">
+          <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <!-- Category Image -->
+            <div class="aspect-square bg-gray-200 overflow-hidden">
+              <img *ngIf="category.imageUrl" 
+                   [src]="category.imageUrl" 
+                   [alt]="category.name"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                   (error)="onImageError($event)">
+              <div *ngIf="!category.imageUrl" 
+                   class="w-full h-full flex items-center justify-center bg-burgundy-100">
+                <span class="text-burgundy-900 text-5xl">📁</span>
+              </div>
+            </div>
+            <!-- Category Name -->
+            <div class="p-4 text-center">
+              <h3 class="font-semibold text-lg text-gray-800 group-hover:text-burgundy-900 transition-colors">
+                {{ category.name }}
+              </h3>
+            </div>
+          </div>
+        </a>
+      </div>
+      
+      <!-- Empty State -->
+      <div *ngIf="!loadingCategories && !categoriesError && categories.length === 0" class="text-center text-gray-500 py-12">
+        <span class="text-5xl mb-4 block">📭</span>
+        <p>لا توجد تصنيفات حالياً</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="bg-white py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-burgundy-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-burgundy-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-burgundy-900 mb-2">جودة عالية</h3>
+          <p class="text-gray-600 text-sm">منتجات مختارة بعناية فائقة</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-burgundy-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-burgundy-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-burgundy-900 mb-2">حجز سريع</h3>
+          <p class="text-gray-600 text-sm">احجز منتجك في ثوانٍ معدودة</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-burgundy-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-burgundy-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-burgundy-900 mb-2">دعم متواصل</h3>
+          <p class="text-gray-600 text-sm">تواصل معنا عبر الواتساب</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<app-footer />
+<app-whatsapp-fab />

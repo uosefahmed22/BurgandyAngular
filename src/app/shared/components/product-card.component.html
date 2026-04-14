@@ -1,0 +1,13 @@
+<a [routerLink]="['/products', product.id]" class="block group">
+  <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-burgundy-100">
+    <div class="relative aspect-[3/4] overflow-hidden">
+      <img [src]="mainImage" [alt]="product.name" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+      <span *ngIf="!product.isAvailable" class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">غير متاح</span>
+      <span class="absolute top-2 left-2 bg-burgundy-100 text-burgundy-900 text-xs px-2 py-1 rounded">{{ product.categoryName }}</span>
+    </div>
+    <div class="p-4">
+      <h3 class="font-semibold text-burgundy-900 mb-2 line-clamp-1">{{ product.name }}</h3>
+      <p class="text-burgundy-900 font-bold text-lg">{{ product.price }} ج.م</p>
+    </div>
+  </div>
+</a>
