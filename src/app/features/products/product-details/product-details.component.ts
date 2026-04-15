@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -109,6 +109,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   private productService = inject(ProductService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
   private destroy$ = new Subject<void>();
 
   product: Product | null = null;
@@ -140,19 +142,35 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     const id = +this.route.snapshot.params['id'];
     console.log('🔍 Loading product ID:', id);
 
+    if (!id || isNaN(id)) {
+      console.error('❌ Invalid product ID:', id);
+      this.error = 'معرف المنتج غير صحيح';
+      this.loading = false;
+      this.cdr.markForCheck();
+      return;
+    }
+
     this.productService
       .getProductById(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data: Product): void => {
-          console.log('✅ ProductDetails received product:', data);
-          this.product = data;
-          this.loading = false;
+        next: (product: Product): void => {
+          console.log('✅ ProductDetails received product:', product);
+          this.ngZone.run(() => {
+            this.product = product;
+            this.loading = false;
+            this.cdr.markForCheck();
+            this.cdr.detectChanges();
+          });
         },
         error: (error: any): void => {
           console.error('❌ ProductDetails failed to load product:', error);
-          this.error = error?.message || 'فشل تحميل تفاصيل المنتج';
-          this.loading = false;
+          this.ngZone.run(() => {
+            this.error = error?.message || 'فشل تحميل تفاصيل المنتج';
+            this.loading = false;
+            this.cdr.markForCheck();
+            this.cdr.detectChanges();
+          });
         },
       });
   }

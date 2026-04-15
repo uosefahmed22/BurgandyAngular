@@ -1,71 +1,47 @@
 <header class="bg-burgundy-900 text-white shadow-lg sticky top-0 z-50">
   <div class="container mx-auto px-4">
-    <div class="flex items-center justify-between h-16">
+    <!-- Desktop Navigation -->
+    <div class="hidden md:flex items-center h-16" style="direction: ltr">
+      <!-- Brand Logo (LEFT side) -->
       <a routerLink="/" class="flex items-center gap-2">
-        <img
-          *ngIf="settings?.logoUrl"
-          [src]="settings?.logoUrl"
-          alt="Logo"
-          class="h-10 w-10 rounded-full"
-        />
-        <span class="font-bold text-xl">{{ settings?.storeName || 'Burgandy' }}</span>
+        <img src="/assets/Burgandy.png" alt="Burgandy Logo" class="h-10 w-10 rounded-full" />
       </a>
-      <nav class="hidden md:flex items-center gap-6">
-        <a
-          routerLink="/"
-          routerLinkActive="text-burgundy-300"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="hover:text-burgundy-300 transition"
-          >الرئيسية</a
-        >
-        <a
-          routerLink="/products"
-          routerLinkActive="text-burgundy-300"
-          class="hover:text-burgundy-300 transition"
-          >المنتجات</a
-        >
-        <a
-          routerLink="/track"
-          routerLinkActive="text-burgundy-300"
-          class="hover:text-burgundy-300 transition"
-          >تتبع الحجز</a
-        >
+
+      <!-- Navigation Links (CENTERED) -->
+      <nav class="flex items-center gap-6 flex-1 justify-center">
+        <a routerLink="/products" routerLinkActive="text-burgundy-300"
+          class="hover:text-burgundy-300 transition">المنتجات</a>
+        <a routerLink="/track" routerLinkActive="text-burgundy-300" class="hover:text-burgundy-300 transition">تتبع
+          الحجز</a>
+        <a routerLink="/" routerLinkActive="text-burgundy-300" [routerLinkActiveOptions]="{ exact: true }"
+          class="hover:text-burgundy-300 transition">الرئيسية</a>
       </nav>
-      <button (click)="toggleMobileMenu()" class="md:hidden p-2">
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="md:hidden flex items-center justify-between h-16">
+      <!-- Brand -->
+      <a routerLink="/" class="flex items-center gap-2">
+        <img [src]="settings?.logoUrl || '/assets/Burgandy.png'" alt="Burgandy Logo" class="h-10 w-10 rounded-full" />
+        <span class="font-bold text-lg">Burgandy</span>
+      </a>
+
+      <!-- Menu Toggle Button -->
+      <button (click)="toggleMobileMenu()" class="p-2">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            *ngIf="!mobileMenuOpen"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-          <path
-            *ngIf="mobileMenuOpen"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
+          <path *ngIf="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16" />
+          <path *ngIf="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
-    <nav *ngIf="mobileMenuOpen" class="md:hidden pb-4 space-y-2">
-      <a routerLink="/" (click)="mobileMenuOpen = false" class="block py-2 hover:text-burgundy-300"
-        >الرئيسية</a
-      >
-      <a
-        routerLink="/products"
-        (click)="mobileMenuOpen = false"
-        class="block py-2 hover:text-burgundy-300"
-        >المنتجات</a
-      >
-      <a
-        routerLink="/track"
-        (click)="mobileMenuOpen = false"
-        class="block py-2 hover:text-burgundy-300"
-        >تتبع الحجز</a
-      >
+
+    <!-- Mobile Menu -->
+    <nav *ngIf="mobileMenuOpen" class="md:hidden pb-4 space-y-2 border-t border-burgundy-800">
+      <a routerLink="/" (click)="mobileMenuOpen = false" class="block py-2 hover:text-burgundy-300">الرئيسية</a>
+      <a routerLink="/products" (click)="mobileMenuOpen = false" class="block py-2 hover:text-burgundy-300">المنتجات</a>
+      <a routerLink="/track" (click)="mobileMenuOpen = false" class="block py-2 hover:text-burgundy-300">تتبع الحجز</a>
     </nav>
   </div>
 </header>
