@@ -11,11 +11,13 @@ export interface Toast {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
   private toasts$ = new BehaviorSubject<Toast[]>([]);
   private toastId = 0;
+  private readonly maxToasts = 3; // Maximum toasts visible at once
+  private toastTimeouts = new Map<string, NodeJS.Timeout>(); // Track timeouts for clearing
 
   toasts(): Observable<Toast[]> {
     return this.toasts$.asObservable();
@@ -38,23 +40,69 @@ export class ToastService {
   }
 
   show(message: string, type: ToastType = 'info', duration = 5000): void {
+    const currentToasts = this.toasts$.value;
+
+    // Prevent duplicate toasts with same message and type
+    const existingToast = currentToasts.find((t) => t.message === message && t.type === type);
+    if (existingToast) {
+      console.log('🔄 Toast duplicate prevented:', message);
+      return;
+    }
+
+    // Remove oldest toast if at max capacity
+    if (currentToasts.length >= this.maxToasts) {
+      const oldestToastId = currentToasts[0].id;
+      this.remove(oldestToastId);
+    }
+
     const id = String(this.toastId++);
     const toast: Toast = { id, message, type, duration };
 
-    const currentToasts = this.toasts$.value;
-    this.toasts$.next([...currentToasts, toast]);
+    const updatedToasts = [...this.toasts$.value, toast];
+    this.toasts$.next(updatedToasts);
 
+    console.log(`📢 Toast shown (${type}):`, message);
+
+    // Auto-remove after duration
     if (duration > 0) {
-      setTimeout(() => this.remove(id), duration);
+      // Clear any existing timeout for this id
+      if (this.toastTimeouts.has(id)) {
+        clearTimeout(this.toastTimeouts.get(id)!);
+      }
+
+      const timeout = setTimeout(() => {
+        this.remove(id);
+      }, duration);
+
+      this.toastTimeouts.set(id, timeout);
     }
   }
 
   remove(id: string): void {
+    // Clear timeout if exists
+    if (this.toastTimeouts.has(id)) {
+      clearTimeout(this.toastTimeouts.get(id)!);
+      this.toastTimeouts.delete(id);
+    }
+
     const currentToasts = this.toasts$.value;
-    this.toasts$.next(currentToasts.filter(t => t.id !== id));
+    this.toasts$.next(currentToasts.filter((t) => t.id !== id));
   }
 
   clear(): void {
+    // Clear all timeouts
+    this.toastTimeouts.forEach((timeout) => clearTimeout(timeout));
+    this.toastTimeouts.clear();
+
     this.toasts$.next([]);
+  }
+
+  /**
+   * Clear all toasts and reset service state
+   * Useful when navigating away or for testing
+   */
+  clearAll(): void {
+    this.clear();
+    this.toastId = 0;
   }
 }
