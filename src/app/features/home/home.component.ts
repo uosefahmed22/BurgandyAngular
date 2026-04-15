@@ -37,6 +37,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   searchTerm = '';
   loadingCategories = true;
   hasError = false;
+  categoriesError = false;
 
   get filteredCategories(): Category[] {
     if (!this.searchTerm.trim()) {
@@ -56,6 +57,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     console.log('🔍 Loading categories...');
     this.loadingCategories = true;
     this.hasError = false;
+    this.categoriesError = false;
 
     this.categoryService
       .getCategories(true)
@@ -69,6 +71,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.categories = [...categories]; // Create new array reference
             this.loadingCategories = false;
             this.hasError = false;
+            this.categoriesError = false;
             this.cdr.markForCheck();
             this.cdr.detectChanges();
             console.log('✅ Categories rendered on page:', this.categories);
@@ -79,6 +82,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           this.ngZone.run(() => {
             this.hasError = true;
+            this.categoriesError = true;
             this.loadingCategories = false;
             this.cdr.detectChanges();
           });
