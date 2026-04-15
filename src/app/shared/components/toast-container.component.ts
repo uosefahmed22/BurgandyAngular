@@ -47,7 +47,7 @@ import { takeUntil } from 'rxjs/operators';
     `
       .toast-container {
         position: fixed;
-        top: 20px;
+        top: 80px;
         left: 50%;
         transform: translateX(-50%);
         z-index: 9999;
@@ -175,6 +175,10 @@ import { takeUntil } from 'rxjs/operators';
 
       /* Mobile responsive */
       @media (max-width: 640px) {
+        .toast-container {
+          top: 70px;
+        }
+
         .toast {
           min-width: 280px;
           max-width: 90vw;
