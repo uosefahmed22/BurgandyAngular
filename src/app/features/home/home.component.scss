@@ -1,2 +1,16 @@
 // Home component styles
-// Add custom styles here if needed
+
+// Desktop: hero takes full screen minus navbar
+@media (min-width: 768px) {
+  #hero {
+    height: calc(100vh - 64px);
+  }
+}
+
+// Mobile: hero auto height - image shows fully
+@media (max-width: 767px) {
+  #hero {
+    height: auto;
+    min-height: 200px;
+  }
+}

@@ -1,47 +1,141 @@
-<header class="bg-burgundy-900 text-white shadow-lg sticky top-0 z-50">
+<header class="bg-[#FDF8F5] sticky top-0 z-50 border-b border-[#EDE4DD]">
   <div class="container mx-auto px-4">
     <!-- Desktop Navigation -->
-    <div class="hidden md:flex items-center h-16" style="direction: ltr">
-      <!-- Brand Logo (LEFT side) -->
-      <a routerLink="/" class="flex items-center gap-2">
-        <img src="/assets/Burgandy.png" alt="Burgandy Logo" class="h-10 w-10 rounded-full" />
+    <div class="hidden md:flex items-center justify-between h-16" style="direction: rtl">
+      <!-- Right Side: Logo -->
+      <a routerLink="/" class="flex items-center gap-3 shrink-0">
+        <img src="/assets/Burgandy.png" alt="Burgandy Logo" class="h-11 w-11" />
       </a>
 
-      <!-- Navigation Links (CENTERED) -->
-      <nav class="flex items-center gap-6 flex-1 justify-center">
-        <a routerLink="/products" routerLinkActive="text-burgundy-300"
-          class="hover:text-burgundy-300 transition">المنتجات</a>
-        <a routerLink="/track" routerLinkActive="text-burgundy-300" class="hover:text-burgundy-300 transition">تتبع
-          الحجز</a>
-        <a routerLink="/" routerLinkActive="text-burgundy-300" [routerLinkActiveOptions]="{ exact: true }"
-          class="hover:text-burgundy-300 transition">الرئيسية</a>
+      <!-- Left Side: Navigation Links -->
+      <nav class="flex items-center gap-1 text-[15px]">
+        <!-- الرئيسية -->
+        <button
+          (click)="navigateHome()"
+          class="px-3 py-1 hover:text-[#722F37] transition-colors cursor-pointer bg-transparent border-none relative font-medium"
+          [style.color]="isHomePage ? '#722F37' : '#5C3A3A'"
+        >
+          الرئيسية
+          <span
+            *ngIf="isHomePage"
+            class="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-7 h-[2.5px] bg-[#C9A84C] rounded-full"
+          ></span>
+        </button>
+
+        <span class="text-[#D5C9BD] mx-1 select-none">|</span>
+
+        <!-- المنتجات -->
+        <a
+          routerLink="/products"
+          routerLinkActive="dummy"
+          #productsLink="routerLinkActive"
+          class="px-3 py-1 hover:text-[#722F37] transition-colors font-medium relative"
+          [style.color]="productsLink.isActive ? '#722F37' : '#5C3A3A'"
+        >
+          المنتجات
+          <span
+            *ngIf="productsLink.isActive"
+            class="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-7 h-[2.5px] bg-[#C9A84C] rounded-full"
+          ></span>
+        </a>
+
+        <span class="text-[#D5C9BD] mx-1 select-none">|</span>
+
+        <!-- تتبع الحجز -->
+        <a
+          routerLink="/track"
+          routerLinkActive="dummy"
+          #trackLink="routerLinkActive"
+          class="px-3 py-1 hover:text-[#722F37] transition-colors font-medium relative"
+          [style.color]="trackLink.isActive ? '#722F37' : '#5C3A3A'"
+        >
+          تتبع الحجز
+          <span
+            *ngIf="trackLink.isActive"
+            class="absolute -bottom-[6px] left-1/2 -translate-x-1/2 w-7 h-[2.5px] bg-[#C9A84C] rounded-full"
+          ></span>
+        </a>
+
+        <span class="text-[#D5C9BD] mx-1 select-none">|</span>
+
+        <!-- تواصل معنا -->
+        <button
+          (click)="scrollToSection('contact')"
+          class="px-3 py-1 text-[#5C3A3A] hover:text-[#722F37] transition-colors cursor-pointer bg-transparent border-none font-medium"
+        >
+          تواصل معنا
+        </button>
       </nav>
     </div>
 
-    <!-- Mobile Navigation -->
-    <div class="md:hidden flex items-center justify-between h-16">
-      <!-- Brand -->
+    <!-- Mobile: Top Bar -->
+    <div class="md:hidden flex items-center justify-between h-14" style="direction: rtl">
       <a routerLink="/" class="flex items-center gap-2">
-        <img [src]="settings?.logoUrl || '/assets/Burgandy.png'" alt="Burgandy Logo" class="h-10 w-10 rounded-full" />
-        <span class="font-bold text-lg">Burgandy</span>
+        <img src="/assets/Burgandy.png" alt="Burgandy Logo" class="h-10 w-10" />
       </a>
 
-      <!-- Menu Toggle Button -->
-      <button (click)="toggleMobileMenu()" class="p-2">
+      <button (click)="toggleMobileMenu()" class="p-2 text-[#722F37] bg-transparent border-none">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path *ngIf="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16" />
-          <path *ngIf="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M6 18L18 6M6 6l12 12" />
+          <path
+            *ngIf="!mobileMenuOpen"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+          <path
+            *ngIf="mobileMenuOpen"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
     </div>
 
-    <!-- Mobile Menu -->
-    <nav *ngIf="mobileMenuOpen" class="md:hidden pb-4 space-y-2 border-t border-burgundy-800">
-      <a routerLink="/" (click)="mobileMenuOpen = false" class="block py-2 hover:text-burgundy-300">الرئيسية</a>
-      <a routerLink="/products" (click)="mobileMenuOpen = false" class="block py-2 hover:text-burgundy-300">المنتجات</a>
-      <a routerLink="/track" (click)="mobileMenuOpen = false" class="block py-2 hover:text-burgundy-300">تتبع الحجز</a>
+    <!-- Mobile: Dropdown Menu -->
+    <nav
+      *ngIf="mobileMenuOpen"
+      class="md:hidden pb-4 space-y-1 border-t border-[#EDE4DD]"
+      style="direction: rtl"
+    >
+      <button
+        (click)="navigateHome()"
+        class="block w-full text-right py-2.5 px-3 rounded-lg bg-transparent border-none font-medium text-[15px]"
+        [style.color]="isHomePage ? '#722F37' : '#5C3A3A'"
+        [style.background-color]="isHomePage ? '#F5ECE6' : 'transparent'"
+      >
+        الرئيسية
+      </button>
+      <a
+        routerLink="/products"
+        routerLinkActive="dummy"
+        #productsLinkMobile="routerLinkActive"
+        (click)="mobileMenuOpen = false"
+        class="block py-2.5 px-3 rounded-lg font-medium text-[15px]"
+        [style.color]="productsLinkMobile.isActive ? '#722F37' : '#5C3A3A'"
+        [style.background-color]="productsLinkMobile.isActive ? '#F5ECE6' : 'transparent'"
+      >
+        المنتجات
+      </a>
+      <a
+        routerLink="/track"
+        routerLinkActive="dummy"
+        #trackLinkMobile="routerLinkActive"
+        (click)="mobileMenuOpen = false"
+        class="block py-2.5 px-3 rounded-lg font-medium text-[15px]"
+        [style.color]="trackLinkMobile.isActive ? '#722F37' : '#5C3A3A'"
+        [style.background-color]="trackLinkMobile.isActive ? '#F5ECE6' : 'transparent'"
+      >
+        تتبع الحجز
+      </a>
+      <button
+        (click)="scrollToSection('contact')"
+        class="block w-full text-right py-2.5 px-3 text-[#5C3A3A] hover:text-[#722F37] hover:bg-[#F5ECE6] rounded-lg bg-transparent border-none font-medium text-[15px]"
+      >
+        تواصل معنا
+      </button>
     </nav>
   </div>
 </header>

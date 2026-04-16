@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -23,99 +23,144 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
   ],
   template: `
     <app-header />
-    <main class="flex-1">
-      <div class="container mx-auto px-4 py-8 max-w-2xl">
-        <h1 class="text-3xl font-bold text-burgundy-900 mb-8 text-center">تتبع الحجز</h1>
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+    <main class="flex-1 bg-[#FDF8F6]">
+      <div class="container mx-auto px-4 py-6 md:py-10 max-w-2xl">
+        <h1 class="text-xl md:text-2xl font-bold text-[#722F37] mb-6 text-center">تتبع الحجز</h1>
+
+        <!-- Search Form -->
+        <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6 mb-6">
           <form (ngSubmit)="search()" class="space-y-4">
             <div>
-              <label class="block text-burgundy-900 font-semibold mb-2">كود الحجز</label>
+              <label class="block text-gray-700 font-medium text-sm mb-1.5">كود الحجز</label>
               <input
                 type="text"
                 [(ngModel)]="code"
                 name="code"
-                class="w-full border border-burgundy-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-burgundy-500"
+                class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#722F37]/30 focus:border-[#722F37] transition text-sm"
                 placeholder="أدخل كود الحجز"
+                dir="ltr"
               />
             </div>
             <div>
-              <label class="block text-burgundy-900 font-semibold mb-2">رقم الهاتف</label>
+              <label class="block text-gray-700 font-medium text-sm mb-1.5">رقم الهاتف</label>
               <input
                 type="tel"
                 [(ngModel)]="phone"
                 name="phone"
-                class="w-full border border-burgundy-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-burgundy-500"
+                class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#722F37]/30 focus:border-[#722F37] transition text-sm"
                 placeholder="01xxxxxxxxx"
+                dir="ltr"
               />
             </div>
             <button
               type="submit"
               [disabled]="loading"
-              class="w-full bg-burgundy-900 hover:bg-burgundy-800 disabled:bg-burgundy-400 text-white font-semibold py-3 rounded-lg transition"
+              class="w-full font-semibold py-3 rounded-xl transition-all duration-200 text-sm"
+              [ngClass]="{
+                'bg-[#722F37] hover:bg-[#5a252c] text-white cursor-pointer': !loading,
+                'bg-gray-200 text-gray-400 cursor-not-allowed': loading,
+              }"
             >
               <span *ngIf="!loading">بحث</span>
               <span *ngIf="loading">جاري البحث...</span>
             </button>
           </form>
         </div>
-        <div *ngIf="error" class="bg-red-50 text-red-600 p-4 rounded-lg mb-6 text-center">
-          {{ error }}
+
+        <!-- Error -->
+        <div
+          *ngIf="error"
+          class="bg-red-50 border border-red-200 text-red-500 text-sm p-4 rounded-xl mb-6 text-center"
+        >
+          ⚠️ {{ error }}
         </div>
-        <app-loading-spinner *ngIf="loading" />
-        <div *ngIf="!loading && searched && reservation" class="bg-white rounded-xl shadow-lg p-6">
-          <div class="flex justify-between items-start mb-6">
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="text-center py-8">
+          <app-loading-spinner />
+        </div>
+
+        <!-- Result -->
+        <div
+          *ngIf="!loading && searched && reservation"
+          class="bg-white rounded-2xl shadow-sm p-5 md:p-6"
+        >
+          <!-- Header: Code + Status -->
+          <div class="flex justify-between items-start mb-5" style="direction: rtl">
             <div>
-              <p class="text-gray-600 text-sm">كود الحجز</p>
-              <p class="text-2xl font-bold text-burgundy-900">{{ reservation.code }}</p>
+              <p class="text-gray-500 text-xs">كود الحجز</p>
+              <p class="text-xl font-bold text-[#722F37]">{{ reservation.code }}</p>
             </div>
             <span
               [class]="getStatusColor(reservation.status)"
-              class="px-4 py-2 rounded-full font-semibold"
+              class="px-3 py-1.5 rounded-full text-xs font-semibold"
               >{{ getStatusText(reservation.status) }}</span
             >
           </div>
-          <div class="border-t border-burgundy-100 pt-6">
-            <div class="flex gap-4 mb-6">
+
+          <div class="border-t border-gray-100 pt-5">
+            <!-- Product Info -->
+            <div class="flex items-center gap-3 mb-5" style="direction: rtl">
               <img
-                [src]="reservation.productImageUrl || 'https://via.placeholder.com/100'"
+                *ngIf="reservation.productImageUrl"
+                [src]="reservation.productImageUrl"
                 [alt]="reservation.productName"
-                class="w-20 h-20 object-cover rounded-lg"
+                class="w-16 h-16 object-cover rounded-xl"
               />
-              <div>
-                <h3 class="font-semibold text-burgundy-900">{{ reservation.productName }}</h3>
-                <p class="text-burgundy-700 font-bold">{{ reservation.productPrice }} ج.م</p>
-                <p class="text-gray-600 text-sm">
-                  {{ reservation.size }} - {{ reservation.color }}
+              <div
+                *ngIf="!reservation.productImageUrl"
+                class="w-16 h-16 bg-[#F5ECE6] rounded-xl flex items-center justify-center text-2xl"
+              >
+                👗
+              </div>
+              <div class="flex-1">
+                <h3 class="font-semibold text-[#722F37] text-sm">{{ reservation.productName }}</h3>
+                <p class="text-gray-500 text-xs">
+                  {{ reservation.size }} · {{ reservation.color }}
                 </p>
               </div>
+              <p class="font-bold text-[#722F37] text-sm">{{ reservation.productPrice }} ج.م</p>
             </div>
-            <div class="grid grid-cols-2 gap-4 mt-6">
+
+            <!-- Details Grid -->
+            <div class="grid grid-cols-2 gap-4" style="direction: rtl">
               <div>
-                <p class="text-gray-600 text-sm">اسم العميل</p>
-                <p class="font-semibold text-burgundy-900">{{ reservation.customerName }}</p>
+                <p class="text-gray-400 text-xs">اسم العميل</p>
+                <p class="font-medium text-gray-800 text-sm">{{ reservation.customerName }}</p>
               </div>
               <div>
-                <p class="text-gray-600 text-sm">رقم الهاتف</p>
-                <p class="font-semibold text-burgundy-900">{{ reservation.customerPhone }}</p>
+                <p class="text-gray-400 text-xs">رقم الهاتف</p>
+                <p class="font-medium text-gray-800 text-sm" dir="ltr">
+                  {{ reservation.customerPhone }}
+                </p>
               </div>
               <div>
-                <p class="text-gray-600 text-sm">تاريخ الحجز</p>
-                <p class="font-semibold text-burgundy-900">
+                <p class="text-gray-400 text-xs">تاريخ الحجز</p>
+                <p class="font-medium text-gray-800 text-sm">
                   {{ reservation.createdAt | date: 'short' }}
                 </p>
               </div>
               <div *ngIf="reservation.expiresAt">
-                <p class="text-gray-600 text-sm">ينتهي في</p>
-                <p class="font-semibold text-burgundy-900">
+                <p class="text-gray-400 text-xs">ينتهي في</p>
+                <p class="font-medium text-gray-800 text-sm">
                   {{ reservation.expiresAt | date: 'short' }}
                 </p>
               </div>
             </div>
-            <div *ngIf="reservation.notes" class="mt-6 p-4 bg-burgundy-50 rounded-lg">
-              <p class="text-gray-600 text-sm">الملاحظات</p>
-              <p class="text-burgundy-900">{{ reservation.notes }}</p>
+
+            <!-- Notes -->
+            <div *ngIf="reservation.notes" class="mt-5 p-3 bg-[#FDF8F6] rounded-xl">
+              <p class="text-gray-400 text-xs mb-1">الملاحظات</p>
+              <p class="text-gray-700 text-sm">{{ reservation.notes }}</p>
             </div>
           </div>
+        </div>
+
+        <!-- Not Found -->
+        <div *ngIf="!loading && searched && !reservation && !error" class="text-center py-12">
+          <span class="text-5xl mb-4 block">🔍</span>
+          <p class="text-gray-500">لم يتم العثور على الحجز</p>
+          <p class="text-gray-400 text-sm mt-2">تأكدي من كود الحجز ورقم الهاتف</p>
         </div>
       </div>
     </main>
@@ -125,6 +170,8 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
 })
 export class TrackReservationComponent implements OnDestroy {
   private reservationService = inject(ReservationService);
+  private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
   private destroy$ = new Subject<void>();
 
   code = '';
@@ -142,19 +189,30 @@ export class TrackReservationComponent implements OnDestroy {
     this.loading = true;
     this.error = '';
     this.searched = true;
-    this.reservationService.track({ code: this.code, phone: this.phone }).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (data: Reservation | null): void => {
-        this.reservation = data;
-        this.loading = false;
-      },
-      error: (error: any): void => {
-        this.error = error.message || 'لم يتم العثور على الحجز';
-        this.reservation = null;
-        this.loading = false;
-      },
-    });
+    this.reservation = null;
+
+    this.reservationService
+      .track({ code: this.code.trim(), phone: this.phone.trim() })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: Reservation | null): void => {
+          this.ngZone.run(() => {
+            this.reservation = data;
+            this.loading = false;
+            this.cdr.markForCheck();
+            this.cdr.detectChanges();
+          });
+        },
+        error: (error: any): void => {
+          this.ngZone.run(() => {
+            this.error = error.message || 'لم يتم العثور على الحجز';
+            this.reservation = null;
+            this.loading = false;
+            this.cdr.markForCheck();
+            this.cdr.detectChanges();
+          });
+        },
+      });
   }
 
   getStatusText(status: string): string {
@@ -169,10 +227,10 @@ export class TrackReservationComponent implements OnDestroy {
 
   getStatusColor(status: string): string {
     const map: Record<string, string> = {
-      Pending: 'bg-yellow-100 text-yellow-800',
-      Confirmed: 'bg-blue-100 text-blue-800',
-      Delivered: 'bg-green-100 text-green-800',
-      Cancelled: 'bg-red-100 text-red-800',
+      Pending: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+      Confirmed: 'bg-blue-50 text-blue-700 border border-blue-200',
+      Delivered: 'bg-green-50 text-green-700 border border-green-200',
+      Cancelled: 'bg-red-50 text-red-700 border border-red-200',
     };
     return map[status] || 'bg-gray-100 text-gray-800';
   }

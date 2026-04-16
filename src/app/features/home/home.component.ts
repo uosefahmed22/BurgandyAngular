@@ -100,6 +100,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     window.open('https://wa.me/2001141841861', '_blank');
   }
 
+  scrollToContact(): void {
+    const element = document.getElementById('contact');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
   ngOnDestroy() {
     console.log('🏠 HomeComponent destroyed');
     this.destroy$.next();

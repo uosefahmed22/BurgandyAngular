@@ -23,8 +23,24 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
   ],
   template: `
     <app-header />
-    <main class="flex-1">
-      <div class="container mx-auto px-4 py-8">
+    <main class="flex-1 bg-[#FDF8F6]">
+      <div class="container mx-auto px-4 py-6 md:py-10">
+        <!-- Back Link -->
+        <a
+          routerLink="/products"
+          class="inline-flex items-center gap-2 text-[#722F37] hover:text-[#5a252c] mb-6 text-sm font-medium transition"
+        >
+          <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          العودة للمنتجات
+        </a>
+
         <div *ngIf="loading" class="text-center py-16">
           <app-loading-spinner />
         </div>
@@ -38,64 +54,141 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
 
         <div *ngIf="!loading && !product" class="text-center py-16">
           <p class="text-gray-500 mb-4">المنتج غير موجود</p>
-          <a routerLink="/products" class="text-burgundy-700 hover:underline">العودة للمنتجات</a>
+          <a routerLink="/products" class="text-[#722F37] hover:underline">العودة للمنتجات</a>
         </div>
 
-        <div *ngIf="!loading && product" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <div class="aspect-[3/4] rounded-xl overflow-hidden mb-4 bg-white shadow-md">
-              <img [src]="currentImage" [alt]="product.name" class="w-full h-full object-cover" />
+        <!-- Product Details Card -->
+        <div *ngIf="!loading && product" class="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2">
+            <!-- Left: Image Gallery -->
+            <div class="p-4 md:p-6 bg-white">
+              <div class="aspect-[3/4] max-h-[500px] rounded-xl overflow-hidden mb-3 bg-gray-50">
+                <img [src]="currentImage" [alt]="product.name" class="w-full h-full object-cover" />
+              </div>
+              <div *ngIf="product.images.length > 1" class="flex gap-2 overflow-x-auto pb-1">
+                <button
+                  *ngFor="let img of product.images; let i = index"
+                  (click)="selectImage(i)"
+                  class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all duration-200"
+                  [ngClass]="{
+                    'border-[#722F37] shadow-md': i === selectedImageIndex,
+                    'border-transparent opacity-60 hover:opacity-100': i !== selectedImageIndex,
+                  }"
+                >
+                  <img
+                    [src]="img.imageUrl"
+                    [alt]="product.name"
+                    class="w-full h-full object-cover"
+                  />
+                </button>
+              </div>
             </div>
-            <div *ngIf="product.images.length > 1" class="flex gap-2 overflow-x-auto pb-2">
-              <button
-                *ngFor="let img of product.images; let i = index"
-                (click)="selectImage(i)"
-                [class]="i === selectedImageIndex ? 'ring-2 ring-burgundy-900' : 'opacity-60'"
-                class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0"
+
+            <!-- Right: Product Info -->
+            <div class="p-5 md:p-8 flex flex-col justify-center" style="direction: rtl">
+              <!-- Category Badge -->
+              <span
+                class="inline-block bg-[#F5ECE6] text-[#722F37] text-xs px-3 py-1 rounded-full mb-3 w-fit font-medium"
               >
-                <img [src]="img.imageUrl" [alt]="product.name" class="w-full h-full object-cover" />
+                {{ product.categoryName }}
+              </span>
+
+              <!-- Product Name -->
+              <h1 class="text-xl md:text-2xl font-bold text-[#722F37] mb-2">{{ product.name }}</h1>
+
+              <!-- Price -->
+              <p class="text-2xl md:text-3xl font-bold text-[#722F37] mb-4">
+                {{ product.price }} <span class="text-base font-medium">ج.م</span>
+              </p>
+
+              <!-- Description -->
+              <p *ngIf="product.description" class="text-gray-500 text-sm mb-5 leading-relaxed">
+                {{ product.description }}
+              </p>
+
+              <!-- Divider -->
+              <div class="border-t border-gray-100 mb-5"></div>
+
+              <!-- Sizes -->
+              <div class="mb-4">
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">المقاس:</h3>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    *ngFor="let size of sizesArray"
+                    (click)="selectSize(size)"
+                    class="min-w-[40px] h-10 px-3 rounded-lg border text-sm transition-all duration-200 cursor-pointer font-medium"
+                    [ngClass]="{
+                      'bg-[#722F37] text-white border-[#722F37] shadow-sm': selectedSize === size,
+                      'bg-white text-gray-700 border-gray-200 hover:border-[#722F37] hover:text-[#722F37]':
+                        selectedSize !== size,
+                    }"
+                  >
+                    {{ size }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Colors -->
+              <div class="mb-5">
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">اللون:</h3>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    *ngFor="let color of colorsArray"
+                    (click)="selectColor(color)"
+                    class="h-10 px-4 rounded-lg border text-sm transition-all duration-200 cursor-pointer font-medium"
+                    [ngClass]="{
+                      'bg-[#722F37] text-white border-[#722F37] shadow-sm': selectedColor === color,
+                      'bg-white text-gray-700 border-gray-200 hover:border-[#722F37] hover:text-[#722F37]':
+                        selectedColor !== color,
+                    }"
+                  >
+                    {{ color }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Validation Message -->
+              <div
+                *ngIf="showValidation && (!selectedSize || !selectedColor)"
+                class="bg-red-50 border border-red-200 text-red-500 text-xs px-3 py-2 rounded-lg mb-3 text-center"
+              >
+                ⚠️ يرجى اختيار المقاس واللون قبل الحجز
+              </div>
+
+              <!-- Selected Summary -->
+              <div
+                *ngIf="selectedSize || selectedColor"
+                class="bg-[#FDF8F6] border border-[#EDE4DD] px-3 py-2 rounded-lg mb-4 text-xs text-[#722F37]"
+              >
+                <span *ngIf="selectedSize"
+                  >المقاس: <strong>{{ selectedSize }}</strong></span
+                >
+                <span *ngIf="selectedSize && selectedColor"> · </span>
+                <span *ngIf="selectedColor"
+                  >اللون: <strong>{{ selectedColor }}</strong></span
+                >
+              </div>
+
+              <!-- Book Button -->
+              <button
+                *ngIf="product.isAvailable"
+                (click)="goToReserve()"
+                class="w-full text-center font-semibold py-3.5 rounded-xl transition-all duration-200 text-base"
+                [ngClass]="{
+                  'bg-[#722F37] hover:bg-[#5a252c] text-white cursor-pointer shadow-lg hover:shadow-xl':
+                    canReserve,
+                  'bg-gray-200 text-gray-400 cursor-not-allowed': !canReserve,
+                }"
+              >
+                احجز الآن
               </button>
-            </div>
-          </div>
-          <div>
-            <span
-              class="inline-block bg-burgundy-100 text-burgundy-900 text-sm px-3 py-1 rounded-full mb-4"
-              >{{ product.categoryName }}</span
-            >
-            <h1 class="text-3xl font-bold text-burgundy-900 mb-4">{{ product.name }}</h1>
-            <p class="text-3xl font-bold text-burgundy-900 mb-6">{{ product.price }} ج.م</p>
-            <p *ngIf="product.description" class="text-gray-600 mb-6">{{ product.description }}</p>
-            <div class="mb-6">
-              <h3 class="font-semibold text-burgundy-900 mb-2">المقاسات المتاحة:</h3>
-              <div class="flex flex-wrap gap-2">
-                <span
-                  *ngFor="let size of sizesArray"
-                  class="bg-burgundy-50 text-burgundy-900 px-4 py-2 rounded-lg border border-burgundy-200"
-                  >{{ size }}</span
-                >
+
+              <div
+                *ngIf="!product.isAvailable"
+                class="bg-gray-100 text-gray-400 text-center font-semibold py-3.5 rounded-xl text-base"
+              >
+                غير متاح للحجز حالياً
               </div>
-            </div>
-            <div class="mb-8">
-              <h3 class="font-semibold text-burgundy-900 mb-2">الألوان المتاحة:</h3>
-              <div class="flex flex-wrap gap-2">
-                <span
-                  *ngFor="let color of colorsArray"
-                  class="bg-burgundy-50 text-burgundy-900 px-4 py-2 rounded-lg border border-burgundy-200"
-                  >{{ color }}</span
-                >
-              </div>
-            </div>
-            <a
-              *ngIf="product.isAvailable"
-              [routerLink]="['/reserve', product.id]"
-              class="block w-full bg-burgundy-900 hover:bg-burgundy-800 text-white text-center font-semibold py-4 rounded-xl transition text-lg"
-              >احجز الآن</a
-            >
-            <div
-              *ngIf="!product.isAvailable"
-              class="bg-gray-100 text-gray-500 text-center font-semibold py-4 rounded-xl"
-            >
-              غير متاح للحجز حالياً
             </div>
           </div>
         </div>
@@ -118,6 +211,11 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   error = '';
   selectedImageIndex = 0;
 
+  // Selection state
+  selectedSize: string = '';
+  selectedColor: string = '';
+  showValidation = false;
+
   get sizesArray(): string[] {
     return (
       this.product?.sizes
@@ -134,6 +232,10 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         .map((c: string) => c.trim())
         .filter((c: string) => !!c) || []
     );
+  }
+
+  get canReserve(): boolean {
+    return !!this.selectedSize && !!this.selectedColor;
   }
 
   ngOnInit(): void {
@@ -177,6 +279,29 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   selectImage(index: number): void {
     this.selectedImageIndex = index;
+  }
+
+  selectSize(size: string): void {
+    this.selectedSize = size;
+    this.showValidation = false;
+  }
+
+  selectColor(color: string): void {
+    this.selectedColor = color;
+    this.showValidation = false;
+  }
+
+  goToReserve(): void {
+    if (!this.canReserve) {
+      this.showValidation = true;
+      return;
+    }
+    this.router.navigate(['/reserve', this.product!.id], {
+      queryParams: {
+        size: this.selectedSize,
+        color: this.selectedColor,
+      },
+    });
   }
 
   get currentImage(): string {
