@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://localhost:7156/api'
+  apiUrl: 'https://burgandystore.tryasp.net/api'
 };
