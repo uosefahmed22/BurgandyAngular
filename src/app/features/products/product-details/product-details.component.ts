@@ -87,19 +87,54 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
             <!-- Right: Product Info -->
             <div class="p-5 md:p-8 flex flex-col justify-center" style="direction: rtl">
               <!-- Category Badge -->
-              <span
-                class="inline-block bg-[#F5ECE6] text-[#722F37] text-xs px-3 py-1 rounded-full mb-3 w-fit font-medium"
-              >
-                {{ product.categoryName }}
-              </span>
+              <div class="flex items-center gap-2 mb-3 flex-wrap">
+                <span
+                  class="inline-block bg-[#F5ECE6] text-[#722F37] text-xs px-3 py-1 rounded-full w-fit font-medium"
+                >
+                  {{ product.categoryName }}
+                </span>
+                @if (product.hasActiveDiscount) {
+                  <span
+                    class="inline-block bg-red-50 text-red-600 text-xs px-3 py-1 rounded-full w-fit font-bold animate-pulse"
+                  >
+                    🔥 عرض خاص
+                  </span>
+                }
+              </div>
 
               <!-- Product Name -->
               <h1 class="text-xl md:text-2xl font-bold text-[#722F37] mb-2">{{ product.name }}</h1>
 
               <!-- Price -->
-              <p class="text-2xl md:text-3xl font-bold text-[#722F37] mb-4">
-                {{ product.price }} <span class="text-base font-medium">ج.م</span>
-              </p>
+              <div class="mb-4">
+                @if (product.hasActiveDiscount) {
+                  <div class="flex items-center gap-3 flex-wrap">
+                    <p class="text-2xl md:text-3xl font-bold text-green-600">
+                      {{ product.salePrice }} <span class="text-base font-medium">ج.م</span>
+                    </p>
+                    <p class="text-lg text-gray-400 line-through">{{ product.price }} ج.م</p>
+                    <span class="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                      -{{ product.discountPercentage }}% 🔥
+                    </span>
+                  </div>
+                  <div class="mt-1.5 flex items-center gap-1.5">
+                    <span class="text-orange-500 text-xs font-medium">
+                      ⏰
+                      @if (product.discountRemainingDays === 0) {
+                        العرض ينتهي اليوم!
+                      } @else if (product.discountRemainingDays === 1) {
+                        باقي يوم واحد على العرض
+                      } @else {
+                        باقي {{ product.discountRemainingDays }} أيام على العرض
+                      }
+                    </span>
+                  </div>
+                } @else {
+                  <p class="text-2xl md:text-3xl font-bold text-[#722F37]">
+                    {{ product.price }} <span class="text-base font-medium">ج.م</span>
+                  </p>
+                }
+              </div>
 
               <!-- Description -->
               <p *ngIf="product.description" class="text-gray-500 text-sm mb-5 leading-relaxed">

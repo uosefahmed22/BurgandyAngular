@@ -18,6 +18,8 @@ export class ProductService {
     pageIndex: number = 1,
     pageSize: number = 10,
     categoryId?: number,
+    sort?: string,
+    discountedOnly?: boolean,
   ): Observable<PaginatedResponse<Product>> {
     let params = new HttpParams()
       .set('pageIndex', pageIndex.toString())
@@ -26,14 +28,25 @@ export class ProductService {
     if (categoryId) {
       params = params.set('categoryId', categoryId.toString());
     }
+    if (sort) {
+      params = params.set('sort', sort);
+    }
+    if (discountedOnly) {
+      params = params.set('discountedOnly', 'true');
+    }
 
     const url = `${this.apiUrl}/products`;
-    console.log('🔍 Fetching products:', url, { pageIndex, pageSize, categoryId });
+    console.log('🔍 Fetching products:', url, {
+      pageIndex,
+      pageSize,
+      categoryId,
+      sort,
+      discountedOnly,
+    });
     return this.http.get<ApiResponse<PaginatedResponse<Product>>>(url, { params }).pipe(
       tap((response: ApiResponse<PaginatedResponse<Product>>) =>
         console.log('✅ Raw API Response:', response),
       ),
-      // The API returns: response.data.data (products array inside nested data)
       map((response: ApiResponse<PaginatedResponse<Product>>) => response.data),
       tap((paginatedData: PaginatedResponse<Product>) =>
         console.log('✅ Paginated Data (after first unwrap):', paginatedData),
@@ -56,6 +69,15 @@ export class ProductService {
     return this.http.get<ApiResponse<Product>>(url).pipe(
       tap((response: ApiResponse<Product>) => console.log('✅ Product by ID:', response)),
       map((response: ApiResponse<Product>) => response.data),
+    );
+  }
+
+  getDiscountedProducts(): Observable<Product[]> {
+    const url = `${this.apiUrl}/products/discounted`;
+    console.log('🔥 Fetching discounted products:', url);
+    return this.http.get<ApiResponse<Product[]>>(url).pipe(
+      tap((response: ApiResponse<Product[]>) => console.log('✅ Discounted products:', response)),
+      map((response: ApiResponse<Product[]>) => response.data),
     );
   }
 }

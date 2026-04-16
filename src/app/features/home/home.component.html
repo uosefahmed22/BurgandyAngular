@@ -9,43 +9,9 @@
         alt="Burgandi Couture - أناقتكِ تبدأ من هنا"
         class="w-full h-full object-cover object-top"
       />
-      <!-- DEBUG: "تصفحي المجموعة" - RED overlay -->
-      <a
-        routerLink="/products"
-        class="absolute cursor-pointer rounded-lg"
-        style="top: 66%; right: 25%; width: 15%; height: 7%"
-        aria-label="تصفحي المجموعة"
-      ></a>
-      <!-- DEBUG: "كيف تحجزين؟" - BLUE overlay -->
-      <button
-        (click)="scrollToContact()"
-        class="absolute cursor-pointer rounded-lg border-none"
-        style="top: 66%; right: 10%; width: 14%; height: 7%"
-        aria-label="كيف تحجزين؟"
-      ></button>
+      
     </div>
 
-    <!-- Mobile -->
-    <div class="md:hidden relative w-full">
-      <img
-        src="assets/BurgandyLandingPage.png"
-        alt="Burgandi Couture - أناقتكِ تبدأ من هنا"
-        class="w-full h-auto object-contain"
-      />
-      <!-- DEBUG: "تصفحي المجموعة" - RED overlay -->
-      <a
-        routerLink="/products"
-        class="absolute cursor-pointer rounded-lg"
-        style="top: 66%; right: 25%; width: 15%; height: 7%"
-        aria-label="تصفحي المجموعة"
-      ></a>
-      <!-- DEBUG: "كيف تحجزين؟" - BLUE overlay -->
-      <button
-        (click)="scrollToContact()"
-        class="absolute cursor-pointer rounded-lg border-none"
-        style="top: 66%; right: 10%; width: 14%; height: 7%"
-        aria-label="كيف تحجزين؟"
-      ></button>
     </div>
   </section>
 
@@ -157,6 +123,8 @@
       </div>
     </div>
   </section>
+
+  <app-discounts-banner></app-discounts-banner>
 
   <!-- Features Section -->
   <section id="features" class="bg-white py-12 md:py-16 scroll-mt-16">

@@ -14,6 +14,10 @@ export interface Reservation {
   productName: string;
   productImageUrl: string | null;
   productPrice: number;
+  bookedPrice: number;
+  originalPrice: number;
+  discountPercentageAtBooking: number | null;
+  wasDiscounted: boolean;
   customerId: number;
   customerName: string;
   customerPhone: string;

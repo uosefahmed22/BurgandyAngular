@@ -121,7 +121,7 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
                   </p>
                 </div>
                 <p class="mr-auto font-bold text-[#722F37] text-sm">
-                  {{ reservation.productPrice }} ج.م
+                  {{ reservation.bookedPrice || reservation.productPrice }} ج.م
                 </p>
               </div>
             </div>
@@ -192,7 +192,19 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
               />
               <div class="flex-1">
                 <h2 class="font-semibold text-[#722F37] text-sm">{{ product.name }}</h2>
-                <p class="text-[#722F37] font-bold text-lg">{{ product.price }} ج.م</p>
+                @if (product.hasActiveDiscount) {
+                  <div class="flex items-center gap-2">
+                    <p class="text-green-600 font-bold text-lg">{{ product.salePrice }} ج.م</p>
+                    <p class="text-gray-400 text-sm line-through">{{ product.price }} ج.م</p>
+                    <span
+                      class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                    >
+                      -{{ product.discountPercentage }}%
+                    </span>
+                  </div>
+                } @else {
+                  <p class="text-[#722F37] font-bold text-lg">{{ product.price }} ج.م</p>
+                }
               </div>
             </div>
             <!-- Selected Size & Color -->
@@ -473,7 +485,7 @@ export class CreateReservationComponent implements OnInit, OnDestroy {
     const code = this.reservation.code || '';
     const customerName = this.reservation.customerName || '';
     const customerPhone = this.reservation.customerPhone || '';
-    const price = this.reservation.productPrice || '';
+    const price = this.reservation.bookedPrice || this.reservation.productPrice || '';
 
     const message = `مرحباً 👋
 أنا *${customerName}*

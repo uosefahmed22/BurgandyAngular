@@ -10,6 +10,7 @@ import { WhatsappFabComponent } from '../../shared/components/whatsapp-fab.compo
 import { CategoryService, Category } from '@core/services';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state.component';
+import { DiscountsBannerComponent } from './discounts-banner/discounts-banner.component';
 
 @Component({
   selector: 'app-home',
@@ -23,6 +24,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state.compone
     WhatsappFabComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
+    DiscountsBannerComponent,
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
