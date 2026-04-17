@@ -103,13 +103,13 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
             <div class="bg-[#FDF8F6] rounded-xl p-4 mb-6 text-right" style="direction: rtl">
               <div class="flex items-center gap-3 mb-3">
                 <img
-                  *ngIf="reservation.productImageUrl"
-                  [src]="reservation.productImageUrl"
+                  *ngIf="getProductImage()"
+                  [src]="getProductImage()"
                   [alt]="reservation.productName"
                   class="w-14 h-14 object-cover rounded-lg"
                 />
                 <div
-                  *ngIf="!reservation.productImageUrl"
+                  *ngIf="!getProductImage()"
                   class="w-14 h-14 bg-[#F5ECE6] rounded-lg flex items-center justify-center text-2xl"
                 >
                   👗
@@ -474,6 +474,17 @@ export class CreateReservationComponent implements OnInit, OnDestroy {
       }, 2000);
       this.cdr.detectChanges();
     });
+  }
+
+  getProductImage(): string | null {
+    // Try reservation image first, then fall back to loaded product image
+    if (this.reservation?.productImageUrl) {
+      return this.reservation.productImageUrl;
+    }
+    if (this.product?.images && this.product.images.length > 0) {
+      return this.product.images[0].imageUrl;
+    }
+    return null;
   }
 
   getWhatsAppUrl(): string {
