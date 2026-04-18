@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef, NgZone, PLATFORM_ID, HostListener } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -31,12 +31,7 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
           class="inline-flex items-center gap-2 text-[#722F37] hover:text-[#5a252c] mb-6 text-sm font-medium transition"
         >
           <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 19l-7-7 7-7"
-            />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
           العودة للمنتجات
         </a>
@@ -45,10 +40,7 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
           <app-loading-spinner />
         </div>
 
-        <div
-          *ngIf="!loading && error"
-          class="bg-red-50 text-red-600 p-4 rounded-lg text-center mb-8"
-        >
+        <div *ngIf="!loading && error" class="bg-red-50 text-red-600 p-4 rounded-lg text-center mb-8">
           ❌ {{ error }}
         </div>
 
@@ -59,44 +51,117 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
 
         <!-- Product Details Card -->
         <div *ngIf="!loading && product" class="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div class="grid grid-cols-1 lg:grid-cols-2">
-            <!-- Left: Image Gallery -->
-            <div class="p-4 md:p-6 bg-white">
-              <div class="aspect-[3/4] max-h-[500px] rounded-xl overflow-hidden mb-3 bg-gray-50">
-                <img [src]="currentImage" [alt]="product.name" class="w-full h-full object-cover" />
-              </div>
-              <div *ngIf="product.images.length > 1" class="flex gap-2 overflow-x-auto pb-1">
-                <button
-                  *ngFor="let img of product.images; let i = index"
-                  (click)="selectImage(i)"
-                  class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all duration-200"
-                  [ngClass]="{
-                    'border-[#722F37] shadow-md': i === selectedImageIndex,
-                    'border-transparent opacity-60 hover:opacity-100': i !== selectedImageIndex,
-                  }"
-                >
+          <div class="grid grid-cols-1 lg:grid-cols-[50%_50%] items-start">
+
+            <!-- ==================== LEFT: IMAGE CAROUSEL ==================== -->
+            <div class="p-2 sm:p-3 md:p-4 bg-white">
+              <!-- Main Carousel -->
+              <div
+                class="relative aspect-[3/4] sm:aspect-[4/5] max-h-[55vh] md:max-h-[500px] rounded-xl overflow-hidden mb-2 bg-white cursor-pointer group"
+                (click)="openLightbox()"
+                (mouseenter)="pauseAutoSlide()"
+                (mouseleave)="resumeAutoSlide()"
+              >
+                <!-- No Images Placeholder -->
+                <img
+                  *ngIf="product.images.length === 0"
+                  src="https://via.placeholder.com/600x800?text=No+Image"
+                  alt="No image"
+                  class="w-full h-full object-contain object-center"
+                />
+
+                <!-- Carousel Images with Fade -->
+                <ng-container *ngFor="let img of product.images; let i = index">
                   <img
                     [src]="img.imageUrl"
                     [alt]="product.name"
-                    class="w-full h-full object-cover"
+                    class="absolute inset-0 w-full h-full object-contain sm:object-cover object-center transition-opacity duration-500 ease-in-out"
+                    [ngClass]="{ 'opacity-100 z-10': i === selectedImageIndex, 'opacity-0 z-0': i !== selectedImageIndex }"
                   />
+                </ng-container>
+
+                <!-- Zoom Hint Overlay -->
+                <div
+                  *ngIf="product.images.length > 0"
+                  class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center pointer-events-none z-20"
+                >
+                  <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg">
+                    <svg class="w-5 h-5 text-[#722F37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                    </svg>
+                  </span>
+                </div>
+
+                <!-- Image Counter Badge -->
+                <div
+                  *ngIf="product.images.length > 1"
+                  class="absolute top-3 left-3 z-20 bg-black/40 text-white text-xs px-2.5 py-1 rounded-full backdrop-blur-sm"
+                >
+                  {{ selectedImageIndex + 1 }} / {{ product.images.length }}
+                </div>
+
+                <!-- Left/Right Arrows -->
+                <button
+                  *ngIf="product.images.length > 1"
+                  (click)="prevImage(); $event.stopPropagation()"
+                  class="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/70 hover:bg-white rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                >
+                  <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  *ngIf="product.images.length > 1"
+                  (click)="nextImage(); $event.stopPropagation()"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/70 hover:bg-white rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                >
+                  <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+
+                <!-- Dot Indicators -->
+                <div
+                  *ngIf="product.images.length > 1"
+                  class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"
+                >
+                  <button
+                    *ngFor="let img of product.images; let i = index"
+                    (click)="goToImage(i); $event.stopPropagation()"
+                    class="rounded-full transition-all duration-300"
+                    [ngClass]="{
+                      'w-6 h-2 bg-[#722F37]': i === selectedImageIndex,
+                      'w-2 h-2 bg-white/70 hover:bg-white': i !== selectedImageIndex
+                    }"
+                  ></button>
+                </div>
+              </div>
+
+              <!-- Thumbnails Row -->
+              <div *ngIf="product.images.length > 1" class="flex gap-2 overflow-x-auto pb-1">
+                <button
+                  *ngFor="let img of product.images; let i = index"
+                  (click)="goToImage(i)"
+                  class="w-16 h-16 md:w-[72px] md:h-[72px] rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all duration-200"
+                  [ngClass]="{
+                    'border-[#722F37] shadow-md': i === selectedImageIndex,
+                    'border-transparent opacity-60 hover:opacity-100': i !== selectedImageIndex
+                  }"
+                >
+                  <img [src]="img.imageUrl" [alt]="product.name" class="w-full h-full object-cover" />
                 </button>
               </div>
             </div>
 
-            <!-- Right: Product Info -->
-            <div class="p-5 md:p-8 flex flex-col justify-center" style="direction: rtl">
+            <!-- ==================== RIGHT: PRODUCT INFO ==================== -->
+            <div class="p-5 md:p-8 lg:py-6 flex flex-col" style="direction: rtl">
               <!-- Category Badge -->
               <div class="flex items-center gap-2 mb-3 flex-wrap">
-                <span
-                  class="inline-block bg-[#F5ECE6] text-[#722F37] text-xs px-3 py-1 rounded-full w-fit font-medium"
-                >
+                <span class="inline-block bg-[#F5ECE6] text-[#722F37] text-xs px-3 py-1 rounded-full w-fit font-medium">
                   {{ product.categoryName }}
                 </span>
                 @if (product.hasActiveDiscount) {
-                  <span
-                    class="inline-block bg-red-50 text-red-600 text-xs px-3 py-1 rounded-full w-fit font-bold animate-pulse"
-                  >
+                  <span class="inline-block bg-red-50 text-red-600 text-xs px-3 py-1 rounded-full w-fit font-bold animate-pulse">
                     🔥 عرض خاص
                   </span>
                 }
@@ -154,8 +219,7 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
                     class="min-w-[40px] h-10 px-3 rounded-lg border text-sm transition-all duration-200 cursor-pointer font-medium"
                     [ngClass]="{
                       'bg-[#722F37] text-white border-[#722F37] shadow-sm': selectedSize === size,
-                      'bg-white text-gray-700 border-gray-200 hover:border-[#722F37] hover:text-[#722F37]':
-                        selectedSize !== size,
+                      'bg-white text-gray-700 border-gray-200 hover:border-[#722F37] hover:text-[#722F37]': selectedSize !== size
                     }"
                   >
                     {{ size }}
@@ -173,8 +237,7 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
                     class="h-10 px-4 rounded-lg border text-sm transition-all duration-200 cursor-pointer font-medium"
                     [ngClass]="{
                       'bg-[#722F37] text-white border-[#722F37] shadow-sm': selectedColor === color,
-                      'bg-white text-gray-700 border-gray-200 hover:border-[#722F37] hover:text-[#722F37]':
-                        selectedColor !== color,
+                      'bg-white text-gray-700 border-gray-200 hover:border-[#722F37] hover:text-[#722F37]': selectedColor !== color
                     }"
                   >
                     {{ color }}
@@ -195,13 +258,9 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
                 *ngIf="selectedSize || selectedColor"
                 class="bg-[#FDF8F6] border border-[#EDE4DD] px-3 py-2 rounded-lg mb-4 text-xs text-[#722F37]"
               >
-                <span *ngIf="selectedSize"
-                  >المقاس: <strong>{{ selectedSize }}</strong></span
-                >
+                <span *ngIf="selectedSize">المقاس: <strong>{{ selectedSize }}</strong></span>
                 <span *ngIf="selectedSize && selectedColor"> · </span>
-                <span *ngIf="selectedColor"
-                  >اللون: <strong>{{ selectedColor }}</strong></span
-                >
+                <span *ngIf="selectedColor">اللون: <strong>{{ selectedColor }}</strong></span>
               </div>
 
               <!-- Book Button -->
@@ -210,9 +269,8 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
                 (click)="goToReserve()"
                 class="w-full text-center font-semibold py-3.5 rounded-xl transition-all duration-200 text-base"
                 [ngClass]="{
-                  'bg-[#722F37] hover:bg-[#5a252c] text-white cursor-pointer shadow-lg hover:shadow-xl':
-                    canReserve,
-                  'bg-gray-200 text-gray-400 cursor-not-allowed': !canReserve,
+                  'bg-[#722F37] hover:bg-[#5a252c] text-white cursor-pointer shadow-lg hover:shadow-xl': canReserve,
+                  'bg-gray-200 text-gray-400 cursor-not-allowed': !canReserve
                 }"
               >
                 احجز الآن
@@ -229,9 +287,87 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
         </div>
       </div>
     </main>
+
+    <!-- ==================== LIGHTBOX OVERLAY ==================== -->
+    <div
+      *ngIf="lightboxOpen && product"
+      class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+      (click)="closeLightbox()"
+    >
+      <!-- Close Button -->
+      <button
+        class="absolute top-4 right-4 z-50 bg-white/20 hover:bg-white/40 rounded-full p-2 transition-colors"
+        (click)="closeLightbox()"
+      >
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Image Counter -->
+      <div *ngIf="product.images.length > 1" class="absolute top-4 left-4 z-50 bg-white/20 text-white text-sm px-3 py-1 rounded-full">
+        {{ selectedImageIndex + 1 }} / {{ product.images.length }}
+      </div>
+
+      <!-- Main Image -->
+      <div class="relative max-w-[95vw] md:max-w-[90vw] max-h-[85vh] flex items-center justify-center" (click)="$event.stopPropagation()">
+        <ng-container *ngFor="let img of product.images; let i = index">
+          <img
+            [src]="img.imageUrl"
+            [alt]="product.name"
+            class="max-w-full max-h-[85vh] object-contain rounded-lg transition-opacity duration-300"
+            [ngClass]="{ 'block opacity-100': i === selectedImageIndex, 'hidden opacity-0': i !== selectedImageIndex }"
+          />
+        </ng-container>
+      </div>
+
+      <!-- Left Arrow -->
+      <button
+        *ngIf="product.images.length > 1"
+        (click)="prevImage(); $event.stopPropagation()"
+        class="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-50 bg-white/20 hover:bg-white/40 rounded-full p-3 transition-colors"
+      >
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <!-- Right Arrow -->
+      <button
+        *ngIf="product.images.length > 1"
+        (click)="nextImage(); $event.stopPropagation()"
+        class="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-50 bg-white/20 hover:bg-white/40 rounded-full p-3 transition-colors"
+      >
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      <!-- Lightbox Dots -->
+      <div
+        *ngIf="product.images.length > 1"
+        class="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-2"
+      >
+        <button
+          *ngFor="let img of product.images; let i = index"
+          (click)="goToImage(i); $event.stopPropagation()"
+          class="rounded-full transition-all duration-300"
+          [ngClass]="{
+            'w-8 h-2.5 bg-white': i === selectedImageIndex,
+            'w-2.5 h-2.5 bg-white/50 hover:bg-white/80': i !== selectedImageIndex
+          }"
+        ></button>
+      </div>
+    </div>
+
     <app-footer />
     <app-whatsapp-fab />
   `,
+  styles: [`
+    :host {
+      display: block;
+    }
+  `],
 })
 export class ProductDetailsComponent implements OnInit, OnDestroy {
   private productService = inject(ProductService);
@@ -239,6 +375,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
+  private platformId = inject(PLATFORM_ID);
   private destroy$ = new Subject<void>();
 
   product: Product | null = null;
@@ -250,6 +387,14 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   selectedSize: string = '';
   selectedColor: string = '';
   showValidation = false;
+
+  // Carousel state
+  private autoSlideInterval: any = null;
+  private autoSlideSpeed = 4000; // 4 seconds
+  private isAutoSlidePaused = false;
+
+  // Lightbox state
+  lightboxOpen = false;
 
   get sizesArray(): string[] {
     return (
@@ -273,6 +418,31 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     return !!this.selectedSize && !!this.selectedColor;
   }
 
+  get currentImage(): string {
+    return (
+      this.product?.images?.[this.selectedImageIndex]?.imageUrl ||
+      'https://via.placeholder.com/600x800?text=No+Image'
+    );
+  }
+
+  // Keyboard support for lightbox
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboard(event: KeyboardEvent): void {
+    if (!this.lightboxOpen) return;
+
+    switch (event.key) {
+      case 'Escape':
+        this.closeLightbox();
+        break;
+      case 'ArrowLeft':
+        this.nextImage(); // RTL: left = next
+        break;
+      case 'ArrowRight':
+        this.prevImage(); // RTL: right = prev
+        break;
+    }
+  }
+
   ngOnInit(): void {
     const id = +this.route.snapshot.params['id'];
 
@@ -293,6 +463,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
             this.loading = false;
             this.cdr.markForCheck();
             this.cdr.detectChanges();
+            this.startAutoSlide();
           });
         },
         error: (error: any): void => {
@@ -306,9 +477,82 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       });
   }
 
-  selectImage(index: number): void {
-    this.selectedImageIndex = index;
+  // ==================== CAROUSEL METHODS ====================
+
+  nextImage(): void {
+    if (!this.product || this.product.images.length <= 1) return;
+    this.selectedImageIndex = (this.selectedImageIndex + 1) % this.product.images.length;
+    this.cdr.detectChanges();
   }
+
+  prevImage(): void {
+    if (!this.product || this.product.images.length <= 1) return;
+    this.selectedImageIndex = this.selectedImageIndex === 0
+      ? this.product.images.length - 1
+      : this.selectedImageIndex - 1;
+    this.cdr.detectChanges();
+  }
+
+  goToImage(index: number): void {
+    this.selectedImageIndex = index;
+    this.cdr.detectChanges();
+  }
+
+  selectImage(index: number): void {
+    this.goToImage(index);
+  }
+
+  startAutoSlide(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (!this.product || this.product.images.length <= 1) return;
+
+    this.stopAutoSlide();
+    this.autoSlideInterval = setInterval(() => {
+      if (!this.isAutoSlidePaused && !this.lightboxOpen) {
+        this.nextImage();
+      }
+    }, this.autoSlideSpeed);
+  }
+
+  stopAutoSlide(): void {
+    if (this.autoSlideInterval) {
+      clearInterval(this.autoSlideInterval);
+      this.autoSlideInterval = null;
+    }
+  }
+
+  pauseAutoSlide(): void {
+    this.isAutoSlidePaused = true;
+  }
+
+  resumeAutoSlide(): void {
+    this.isAutoSlidePaused = false;
+  }
+
+  // ==================== LIGHTBOX METHODS ====================
+
+  openLightbox(): void {
+    if (!this.product || this.product.images.length === 0) return;
+    this.lightboxOpen = true;
+    this.pauseAutoSlide();
+    // Prevent body scroll
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = 'hidden';
+    }
+    this.cdr.detectChanges();
+  }
+
+  closeLightbox(): void {
+    this.lightboxOpen = false;
+    this.resumeAutoSlide();
+    // Restore body scroll
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
+    this.cdr.detectChanges();
+  }
+
+  // ==================== PRODUCT METHODS ====================
 
   selectSize(size: string): void {
     this.selectedSize = size;
@@ -333,14 +577,12 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  get currentImage(): string {
-    return (
-      this.product?.images?.[this.selectedImageIndex]?.imageUrl ||
-      'https://via.placeholder.com/600x800?text=No+Image'
-    );
-  }
-
   ngOnDestroy(): void {
+    this.stopAutoSlide();
+    // Ensure body scroll is restored
+    if (isPlatformBrowser(this.platformId)) {
+      document.body.style.overflow = '';
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
