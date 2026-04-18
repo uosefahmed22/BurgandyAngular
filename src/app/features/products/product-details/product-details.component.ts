@@ -274,13 +274,9 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('📄 ProductDetailsComponent initialized');
-
     const id = +this.route.snapshot.params['id'];
-    console.log('🔍 Loading product ID:', id);
 
     if (!id || isNaN(id)) {
-      console.error('❌ Invalid product ID:', id);
       this.error = 'معرف المنتج غير صحيح';
       this.loading = false;
       this.cdr.markForCheck();
@@ -292,7 +288,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (product: Product): void => {
-          console.log('✅ ProductDetails received product:', product);
           this.ngZone.run(() => {
             this.product = product;
             this.loading = false;
@@ -301,7 +296,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
           });
         },
         error: (error: any): void => {
-          console.error('❌ ProductDetails failed to load product:', error);
           this.ngZone.run(() => {
             this.error = error?.message || 'فشل تحميل تفاصيل المنتج';
             this.loading = false;
@@ -347,7 +341,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('📄 ProductDetailsComponent destroyed');
     this.destroy$.next();
     this.destroy$.complete();
   }

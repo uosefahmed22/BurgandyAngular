@@ -51,12 +51,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('🏠 HomeComponent initialized');
     this.loadCategories();
   }
 
   loadCategories() {
-    console.log('🔍 Loading categories...');
     this.loadingCategories = true;
     this.hasError = false;
     this.categoriesError = false;
@@ -66,22 +64,16 @@ export class HomeComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (categories: Category[]) => {
-          console.log('✅ HomeComponent received categories:', categories);
-
-          // Ensure change detection works properly
           this.ngZone.run(() => {
-            this.categories = [...categories]; // Create new array reference
+            this.categories = [...categories];
             this.loadingCategories = false;
             this.hasError = false;
             this.categoriesError = false;
             this.cdr.markForCheck();
             this.cdr.detectChanges();
-            console.log('✅ Categories rendered on page:', this.categories);
           });
         },
-        error: (error: any) => {
-          console.error('❌ HomeComponent failed to load categories:', error);
-
+        error: () => {
           this.ngZone.run(() => {
             this.hasError = true;
             this.categoriesError = true;
@@ -93,7 +85,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onImageError(event: Event) {
-    console.log('Image failed to load, hiding:', event);
     const img = event.target as HTMLImageElement;
     img.style.display = 'none';
   }
@@ -110,7 +101,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log('🏠 HomeComponent destroyed');
     this.destroy$.next();
     this.destroy$.complete();
   }

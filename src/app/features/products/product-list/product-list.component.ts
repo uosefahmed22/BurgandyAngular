@@ -306,8 +306,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('📦 ProductListComponent initialized');
-
     // Load categories
     this.categoryService
       .getCategories(true)

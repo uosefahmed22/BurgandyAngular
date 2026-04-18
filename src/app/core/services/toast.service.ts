@@ -45,7 +45,6 @@ export class ToastService {
     // Prevent duplicate toasts with same message and type
     const existingToast = currentToasts.find((t) => t.message === message && t.type === type);
     if (existingToast) {
-      console.log('🔄 Toast duplicate prevented:', message);
       return;
     }
 
@@ -60,8 +59,6 @@ export class ToastService {
 
     const updatedToasts = [...this.toasts$.value, toast];
     this.toasts$.next(updatedToasts);
-
-    console.log(`📢 Toast shown (${type}):`, message);
 
     // Auto-remove after duration
     if (duration > 0) {

@@ -278,20 +278,15 @@ export class DiscountsBannerComponent implements OnInit {
   ngOnInit(): void {
     // Only fetch on the browser — SSR can't reach the API via proxy
     if (isPlatformBrowser(this.platformId)) {
-      console.log('🔥 DiscountsBanner: Fetching discounted products (browser)...');
       this.productService.getDiscountedProducts().subscribe({
         next: (products) => {
-          console.log('✅ DiscountsBanner: Received', products.length, 'products');
           this.discountedProducts = products.slice(0, 8);
           this.cdr.detectChanges();
         },
-        error: (err) => {
-          console.error('❌ DiscountsBanner: Failed to load:', err);
+        error: () => {
           this.discountedProducts = [];
         },
       });
-    } else {
-      console.log('⏭️ DiscountsBanner: Skipping fetch (SSR)');
     }
   }
 }
