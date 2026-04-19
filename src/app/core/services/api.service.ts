@@ -1,7 +1,6 @@
-import { Injectable, inject, isDevMode } from '@angular/core';
-import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -18,50 +17,18 @@ export class ApiService {
         }
       });
     }
-    const url = `${this.baseUrl}${endpoint}`;
-    return this.http.get<T>(url, { params: httpParams }).pipe(
-      catchError((error: HttpErrorResponse) => this.handleError(error, url)),
-    );
+    return this.http.get<T>(`${this.baseUrl}${endpoint}`, { params: httpParams });
   }
 
   post<T>(endpoint: string, body: any): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    return this.http.post<T>(url, body).pipe(
-      catchError((error: HttpErrorResponse) => this.handleError(error, url)),
-    );
+    return this.http.post<T>(`${this.baseUrl}${endpoint}`, body);
   }
 
   put<T>(endpoint: string, body: any): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    return this.http.put<T>(url, body).pipe(
-      catchError((error: HttpErrorResponse) => this.handleError(error, url)),
-    );
+    return this.http.put<T>(`${this.baseUrl}${endpoint}`, body);
   }
 
   delete<T>(endpoint: string): Observable<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    return this.http.delete<T>(url).pipe(
-      catchError((error: HttpErrorResponse) => this.handleError(error, url)),
-    );
-  }
-
-  private handleError(error: HttpErrorResponse, url: string) {
-    let errorMessage = 'An error occurred';
-
-    if (error.error instanceof ErrorEvent) {
-      errorMessage = error.error.message;
-    } else {
-      errorMessage = error.error?.message || error.message || errorMessage;
-    }
-
-    if (isDevMode()) {
-      console.error(`❌ API Error (${error.status}):`, url, errorMessage);
-    }
-
-    return throwError(() => ({
-      status: error.status,
-      message: errorMessage,
-      error: error.error,
-    }));
+    return this.http.delete<T>(`${this.baseUrl}${endpoint}`);
   }
 }

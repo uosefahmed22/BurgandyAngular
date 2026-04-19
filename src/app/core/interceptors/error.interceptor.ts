@@ -19,7 +19,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       const statusCode = error.status || 0;
 
-      if (isDevMode()) {
+      if (isDevMode() && (statusCode === 0 || statusCode >= 500)) {
         console.error(`🔴 HTTP ${statusCode}:`, error.url, error.message);
       }
 
@@ -31,11 +31,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         userFriendlyMessage = errorMessagesService.getErrorMessage(statusCode);
       }
 
-      // Only show toast for actual HTTP errors (status >= 400 or status 0)
-      // This prevents false positives from non-error responses
-      const isActualError = statusCode === 0 || statusCode >= 400;
+      // Show toast for server errors and network errors only
+      // 400/401/404 are business responses — components handle them
+      const showToast = statusCode === 0 || statusCode >= 500;
 
-      if (isActualError) {
+      if (showToast) {
         toastService.error(userFriendlyMessage);
       }
 
@@ -45,7 +45,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         message: userFriendlyMessage,
         error: error.error,
         userFriendlyMessage: userFriendlyMessage,
-        isActualError: isActualError,
+        isActualError: showToast,
       }));
     }),
   );

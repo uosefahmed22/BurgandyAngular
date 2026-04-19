@@ -1,0 +1,340 @@
+    <app-header />
+    <main class="flex-1 bg-[#FDF8F6]">
+      <div class="container mx-auto px-4 py-6 md:py-10">
+        <!-- Back Link -->
+        <a
+          routerLink="/products"
+          class="inline-flex items-center gap-2 text-[#722F37] hover:text-[#5a252c] mb-6 text-sm font-medium transition"
+        >
+          <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          العودة للمنتجات
+        </a>
+
+        <div *ngIf="loading" class="text-center py-16">
+          <app-loading-spinner />
+        </div>
+
+        <div *ngIf="!loading && error" class="bg-red-50 text-red-600 p-4 rounded-lg text-center mb-8">
+          ❌ {{ error }}
+        </div>
+
+        <div *ngIf="!loading && !product" class="text-center py-16">
+          <p class="text-gray-500 mb-4">المنتج غير موجود</p>
+          <a routerLink="/products" class="text-[#722F37] hover:underline">العودة للمنتجات</a>
+        </div>
+
+        <!-- Product Details Card -->
+        <div *ngIf="!loading && product" class="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-[50%_50%] items-start">
+
+            <!-- ==================== LEFT: IMAGE CAROUSEL ==================== -->
+            <div class="p-2 sm:p-3 md:p-4 bg-white">
+              <!-- Main Carousel -->
+              <div
+                class="relative aspect-[3/4] sm:aspect-[4/5] max-h-[55vh] md:max-h-[500px] rounded-xl overflow-hidden mb-2 bg-white cursor-pointer group"
+                (click)="openLightbox()"
+                (mouseenter)="pauseAutoSlide()"
+                (mouseleave)="resumeAutoSlide()"
+              >
+                <!-- No Images Placeholder -->
+                <img
+                  *ngIf="product.images.length === 0"
+                  src="https://via.placeholder.com/600x800?text=No+Image"
+                  alt="No image"
+                  class="w-full h-full object-contain object-center"
+                />
+
+                <!-- Carousel Images with Fade -->
+                <ng-container *ngFor="let img of product.images; let i = index">
+                  <img
+                    [src]="img.imageUrl"
+                    [alt]="product.name"
+                    class="absolute inset-0 w-full h-full object-contain sm:object-cover object-center transition-opacity duration-500 ease-in-out"
+                    [ngClass]="{ 'opacity-100 z-10': i === selectedImageIndex, 'opacity-0 z-0': i !== selectedImageIndex }"
+                  />
+                </ng-container>
+
+                <!-- Zoom Hint Overlay -->
+                <div
+                  *ngIf="product.images.length > 0"
+                  class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center pointer-events-none z-20"
+                >
+                  <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/80 backdrop-blur-sm rounded-full p-3 shadow-lg">
+                    <svg class="w-5 h-5 text-[#722F37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                    </svg>
+                  </span>
+                </div>
+
+                <!-- Image Counter Badge -->
+                <div
+                  *ngIf="product.images.length > 1"
+                  class="absolute top-3 left-3 z-20 bg-black/40 text-white text-xs px-2.5 py-1 rounded-full backdrop-blur-sm"
+                >
+                  {{ selectedImageIndex + 1 }} / {{ product.images.length }}
+                </div>
+
+                <!-- Left/Right Arrows -->
+                <button
+                  *ngIf="product.images.length > 1"
+                  (click)="prevImage(); $event.stopPropagation()"
+                  class="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/70 hover:bg-white rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                >
+                  <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  *ngIf="product.images.length > 1"
+                  (click)="nextImage(); $event.stopPropagation()"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/70 hover:bg-white rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                >
+                  <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+
+                <!-- Dot Indicators -->
+                <div
+                  *ngIf="product.images.length > 1"
+                  class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5"
+                >
+                  <button
+                    *ngFor="let img of product.images; let i = index"
+                    (click)="goToImage(i); $event.stopPropagation()"
+                    class="rounded-full transition-all duration-300"
+                    [ngClass]="{
+                      'w-6 h-2 bg-[#722F37]': i === selectedImageIndex,
+                      'w-2 h-2 bg-white/70 hover:bg-white': i !== selectedImageIndex
+                    }"
+                  ></button>
+                </div>
+              </div>
+
+              <!-- Thumbnails Row -->
+              <div *ngIf="product.images.length > 1" class="flex gap-2 overflow-x-auto pb-1">
+                <button
+                  *ngFor="let img of product.images; let i = index"
+                  (click)="goToImage(i)"
+                  class="w-16 h-16 md:w-[72px] md:h-[72px] rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all duration-200"
+                  [ngClass]="{
+                    'border-[#722F37] shadow-md': i === selectedImageIndex,
+                    'border-transparent opacity-60 hover:opacity-100': i !== selectedImageIndex
+                  }"
+                >
+                  <img [src]="img.imageUrl" [alt]="product.name" class="w-full h-full object-cover" />
+                </button>
+              </div>
+            </div>
+
+            <!-- ==================== RIGHT: PRODUCT INFO ==================== -->
+            <div class="p-5 md:p-8 lg:py-6 flex flex-col" style="direction: rtl">
+              <!-- Category Badge -->
+              <div class="flex items-center gap-2 mb-3 flex-wrap">
+                <span class="inline-block bg-[#F5ECE6] text-[#722F37] text-xs px-3 py-1 rounded-full w-fit font-medium">
+                  {{ product.categoryName }}
+                </span>
+                @if (product.hasActiveDiscount) {
+                  <span class="inline-block bg-red-50 text-red-600 text-xs px-3 py-1 rounded-full w-fit font-bold animate-pulse">
+                    🔥 عرض خاص
+                  </span>
+                }
+              </div>
+
+              <!-- Product Name -->
+              <h1 class="text-xl md:text-2xl font-bold text-[#722F37] mb-2">{{ product.name }}</h1>
+
+              <!-- Price -->
+              <div class="mb-4">
+                @if (product.hasActiveDiscount) {
+                  <div class="flex items-center gap-3 flex-wrap">
+                    <p class="text-2xl md:text-3xl font-bold text-green-600">
+                      {{ product.salePrice }} <span class="text-base font-medium">ج.م</span>
+                    </p>
+                    <p class="text-lg text-gray-400 line-through">{{ product.price }} ج.م</p>
+                    <span class="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                      -{{ product.discountPercentage }}% 🔥
+                    </span>
+                  </div>
+                  <div class="mt-1.5 flex items-center gap-1.5">
+                    <span class="text-orange-500 text-xs font-medium">
+                      ⏰
+                      @if (product.discountRemainingDays === 0) {
+                        العرض ينتهي اليوم!
+                      } @else if (product.discountRemainingDays === 1) {
+                        باقي يوم واحد على العرض
+                      } @else {
+                        باقي {{ product.discountRemainingDays }} أيام على العرض
+                      }
+                    </span>
+                  </div>
+                } @else {
+                  <p class="text-2xl md:text-3xl font-bold text-[#722F37]">
+                    {{ product.price }} <span class="text-base font-medium">ج.م</span>
+                  </p>
+                }
+              </div>
+
+              <!-- Description -->
+              <p *ngIf="product.description" class="text-gray-500 text-sm mb-5 leading-relaxed">
+                {{ product.description }}
+              </p>
+
+              <!-- Divider -->
+              <div class="border-t border-gray-100 mb-5"></div>
+
+              <!-- Sizes -->
+              <div class="mb-4">
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">المقاس:</h3>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    *ngFor="let size of sizesArray"
+                    (click)="selectSize(size)"
+                    class="min-w-[40px] h-10 px-3 rounded-lg border text-sm transition-all duration-200 cursor-pointer font-medium"
+                    [ngClass]="{
+                      'bg-[#722F37] text-white border-[#722F37] shadow-sm': selectedSize === size,
+                      'bg-white text-gray-700 border-gray-200 hover:border-[#722F37] hover:text-[#722F37]': selectedSize !== size
+                    }"
+                  >
+                    {{ size }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Colors -->
+              <div class="mb-5">
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">اللون:</h3>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    *ngFor="let color of colorsArray"
+                    (click)="selectColor(color)"
+                    class="h-10 px-4 rounded-lg border text-sm transition-all duration-200 cursor-pointer font-medium"
+                    [ngClass]="{
+                      'bg-[#722F37] text-white border-[#722F37] shadow-sm': selectedColor === color,
+                      'bg-white text-gray-700 border-gray-200 hover:border-[#722F37] hover:text-[#722F37]': selectedColor !== color
+                    }"
+                  >
+                    {{ color }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Validation Message -->
+              <div
+                *ngIf="showValidation && (!selectedSize || !selectedColor)"
+                class="bg-red-50 border border-red-200 text-red-500 text-xs px-3 py-2 rounded-lg mb-3 text-center"
+              >
+                ⚠️ يرجى اختيار المقاس واللون قبل الحجز
+              </div>
+
+              <!-- Selected Summary -->
+              <div
+                *ngIf="selectedSize || selectedColor"
+                class="bg-[#FDF8F6] border border-[#EDE4DD] px-3 py-2 rounded-lg mb-4 text-xs text-[#722F37]"
+              >
+                <span *ngIf="selectedSize">المقاس: <strong>{{ selectedSize }}</strong></span>
+                <span *ngIf="selectedSize && selectedColor"> · </span>
+                <span *ngIf="selectedColor">اللون: <strong>{{ selectedColor }}</strong></span>
+              </div>
+
+              <!-- Book Button -->
+              <button
+                *ngIf="product.isAvailable"
+                (click)="goToReserve()"
+                class="w-full text-center font-semibold py-3.5 rounded-xl transition-all duration-200 text-base"
+                [ngClass]="{
+                  'bg-[#722F37] hover:bg-[#5a252c] text-white cursor-pointer shadow-lg hover:shadow-xl': canReserve,
+                  'bg-gray-200 text-gray-400 cursor-not-allowed': !canReserve
+                }"
+              >
+                احجز الآن
+              </button>
+
+              <div
+                *ngIf="!product.isAvailable"
+                class="bg-gray-100 text-gray-400 text-center font-semibold py-3.5 rounded-xl text-base"
+              >
+                غير متاح للحجز حالياً
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==================== LIGHTBOX OVERLAY ==================== -->
+    <div
+      *ngIf="lightboxOpen && product"
+      class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+      (click)="closeLightbox()"
+    >
+      <!-- Close Button -->
+      <button
+        class="absolute top-4 right-4 z-50 bg-white/20 hover:bg-white/40 rounded-full p-2 transition-colors"
+        (click)="closeLightbox()"
+      >
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Image Counter -->
+      <div *ngIf="product.images.length > 1" class="absolute top-4 left-4 z-50 bg-white/20 text-white text-sm px-3 py-1 rounded-full">
+        {{ selectedImageIndex + 1 }} / {{ product.images.length }}
+      </div>
+
+      <!-- Main Image -->
+      <div class="relative max-w-[95vw] md:max-w-[90vw] max-h-[85vh] flex items-center justify-center" (click)="$event.stopPropagation()">
+        <ng-container *ngFor="let img of product.images; let i = index">
+          <img
+            [src]="img.imageUrl"
+            [alt]="product.name"
+            class="max-w-full max-h-[85vh] object-contain rounded-lg transition-opacity duration-300"
+            [ngClass]="{ 'block opacity-100': i === selectedImageIndex, 'hidden opacity-0': i !== selectedImageIndex }"
+          />
+        </ng-container>
+      </div>
+
+      <!-- Left Arrow -->
+      <button
+        *ngIf="product.images.length > 1"
+        (click)="prevImage(); $event.stopPropagation()"
+        class="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-50 bg-white/20 hover:bg-white/40 rounded-full p-3 transition-colors"
+      >
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <!-- Right Arrow -->
+      <button
+        *ngIf="product.images.length > 1"
+        (click)="nextImage(); $event.stopPropagation()"
+        class="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-50 bg-white/20 hover:bg-white/40 rounded-full p-3 transition-colors"
+      >
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      <!-- Lightbox Dots -->
+      <div
+        *ngIf="product.images.length > 1"
+        class="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-2"
+      >
+        <button
+          *ngFor="let img of product.images; let i = index"
+          (click)="goToImage(i); $event.stopPropagation()"
+          class="rounded-full transition-all duration-300"
+          [ngClass]="{
+            'w-8 h-2.5 bg-white': i === selectedImageIndex,
+            'w-2.5 h-2.5 bg-white/50 hover:bg-white/80': i !== selectedImageIndex
+          }"
+        ></button>
+      </div>
+    </div>
+
+    <app-footer />
+    <app-whatsapp-fab />
