@@ -1,59 +1,76 @@
-# BurgandyAngular
+# Burgandy Angular Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.7.
+Customer-facing Angular 21+ frontend for the Burgandy fashion/clothing reservation system. The app is built with standalone components, Tailwind CSS, RTL-ready layout support, and is wired to the Burgandy API.
 
-## Development server
+## Highlights
+- Angular 21+ standalone architecture with strict TypeScript
+- Tailwind CSS with a custom burgundy palette
+- Mobile-first responsive UI
+- RTL/Arabic-ready layout and typography
+- API integration for settings, categories, products, and reservations
+- SSR-ready build output
 
-To start a local development server, run:
+## Tech Stack
+- Framework: Angular 21+
+- Language: TypeScript 5.9
+- Styling: Tailwind CSS 3
+- SSR: Angular SSR
+- Server (SSR): Express 5
+- Testing: Angular unit test runner + Vitest
 
+## Requirements
+- Node.js 18+
+- npm 11+
+- Backend API available at `https://localhost:7156/api`
+
+## Quick Start
 ```bash
-ng serve
+npm install
+npm start
+```
+Open `http://localhost:4200`.
+
+## Scripts
+```bash
+npm start        # Dev server
+npm run build    # Production build
+npm run watch    # Build in watch mode
+npm test         # Unit tests
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Configuration
+- API base URL: `src/environments/environment.ts`
+- Proxy config: `src/proxy.conf.json`
+- Tailwind config: `tailwind.config.js`
+- Global styles: `src/styles.css`
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+## Project Structure
+```
+src/
+  app/
+    core/
+      models/
+      services/
+    features/
+    shared/
+  environments/
+  assets/
+  styles.css
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## API Integration
+The frontend expects a backend that returns `{ statusCode, message, data }` and supports:
+- Settings: `GET /api/Settings`, `PUT /api/Settings`
+- Categories: `GET /api/Categories?activeOnly=true`, `GET /api/Categories/{id}`
+- Products: `GET /api/Products`, `GET /api/Products/{id}`
+- Reservations: `POST /api/Reservations`, `GET /api/Reservations/track`
 
-```bash
-ng generate --help
-```
+For detailed integration steps and test data, see `API_INTEGRATION_CHECKLIST.md`.
 
-## Building
+## Notes
+- CORS must allow `http://localhost:4200` in development.
+- Production output is generated under `dist/`.
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Additional Docs
+- `API_INTEGRATION_CHECKLIST.md`
+- `FRONTEND_SETUP_COMPLETE.md`
