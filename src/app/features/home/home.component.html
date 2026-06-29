@@ -8,8 +8,8 @@
         alt="Burgandi Couture - أناقتكِ تبدأ من هنا"
         class="w-full h-auto md:h-auto object-cover object-top"
         style="max-height: 100vh"
-        width="1920"
-        height="1080"
+        width="1413"
+        height="603"
         fetchpriority="high"
       />
     </div>
@@ -68,7 +68,7 @@
         class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
       >
         <a
-          *ngFor="let category of filteredCategories"
+          *ngFor="let category of filteredCategories; let i = index"
           [routerLink]="['/products']"
           [queryParams]="{ categoryId: category.id }"
           class="group cursor-pointer"
@@ -85,7 +85,7 @@
                 (error)="onImageError($event)"
                 width="300"
                 height="300"
-                loading="lazy"
+                [attr.loading]="i < 2 ? 'eager' : 'lazy'"
               />
               <div
                 *ngIf="!category.imageUrl"
