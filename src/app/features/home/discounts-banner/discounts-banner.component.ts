@@ -10,7 +10,11 @@ import { Product } from '../../../core/models';
   standalone: true,
   imports: [CommonModule, RouterLink, CloudinaryPipe],
   template: `
-    @if (discountedProducts.length > 0) {
+    @if (loading) {
+      <section class="discounts-section" style="min-height: 400px; display: flex; align-items: center; justify-content: center;">
+        <div style="color: #722f37; font-weight: 600;">جاري تحميل العروض...</div>
+      </section>
+    } @else if (discountedProducts.length > 0) {
       <section class="discounts-section">
         <div class="discounts-container">
           <!-- Header -->
@@ -280,6 +284,7 @@ export class DiscountsBannerComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
   discountedProducts: Product[] = [];
+  loading = true;
 
   ngOnInit(): void {
     // Only fetch on the browser — SSR can't reach the API via proxy
@@ -287,12 +292,17 @@ export class DiscountsBannerComponent implements OnInit {
       this.productService.getDiscountedProducts().subscribe({
         next: (products) => {
           this.discountedProducts = products.slice(0, 8);
+          this.loading = false;
           this.cdr.detectChanges();
         },
         error: () => {
           this.discountedProducts = [];
+          this.loading = false;
+          this.cdr.detectChanges();
         },
       });
+    } else {
+      this.loading = false;
     }
   }
 }
