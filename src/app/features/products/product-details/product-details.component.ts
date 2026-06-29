@@ -9,6 +9,7 @@ import { WhatsappFabComponent } from '@shared/components/whatsapp-fab.component'
 import { ProductService } from '@core/services';
 import { Product } from '@core/models';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.component';
+import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
 
 @Component({
   selector: 'app-product-details',
@@ -20,6 +21,7 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
     FooterComponent,
     WhatsappFabComponent,
     LoadingSpinnerComponent,
+    CloudinaryPipe
   ],
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.css',

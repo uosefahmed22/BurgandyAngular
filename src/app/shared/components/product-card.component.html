@@ -1,12 +1,16 @@
-<a [routerLink]="['/products', product.id]" class="block group">
+<article>
+  <a [routerLink]="['/products', product.id]" class="block group" [attr.aria-label]="'عرض تفاصيل ' + product.name">
   <div
     class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-burgundy-100"
   >
     <div class="relative aspect-[3/4] overflow-hidden">
       <img
-        [src]="mainImage"
-        [alt]="product.name"
+        [src]="mainImage | cloudinary"
+        [alt]="product.name + ' image'"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        width="300"
+        height="400"
+        loading="lazy"
       />
 
       <!-- Unavailable Badge -->
@@ -57,4 +61,5 @@
       }
     </div>
   </div>
-</a>
+  </a>
+</article>

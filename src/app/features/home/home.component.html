@@ -8,6 +8,9 @@
         alt="Burgandi Couture - أناقتكِ تبدأ من هنا"
         class="w-full h-auto md:h-auto object-cover object-top"
         style="max-height: 100vh"
+        width="1920"
+        height="1080"
+        fetchpriority="high"
       />
     </div>
   </section>
@@ -70,16 +73,19 @@
           [queryParams]="{ categoryId: category.id }"
           class="group cursor-pointer"
         >
-          <div
-            class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
+          <article
+            class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full"
           >
             <div class="aspect-square bg-gray-200 overflow-hidden">
               <img
                 *ngIf="category.imageUrl"
-                [src]="category.imageUrl"
-                [alt]="category.name"
+                [src]="category.imageUrl | cloudinary"
+                [alt]="category.name + ' category'"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 (error)="onImageError($event)"
+                width="300"
+                height="300"
+                loading="lazy"
               />
               <div
                 *ngIf="!category.imageUrl"
@@ -95,7 +101,7 @@
                 {{ category.name }}
               </h3>
             </div>
-          </div>
+          </article>
         </a>
       </div>
 

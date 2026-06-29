@@ -3,8 +3,8 @@
     <!-- Desktop Navigation -->
     <div class="hidden md:flex items-center justify-between h-16" style="direction: rtl">
       <!-- Right Side: Logo -->
-      <a routerLink="/" class="flex items-center gap-3 shrink-0">
-        <img src="/assets/Burgandy.png" alt="Burgandy Logo" class="h-11 w-11" />
+      <a routerLink="/" class="flex items-center gap-3 shrink-0" aria-label="الرئيسية">
+        <img src="/assets/Burgandy.png" alt="Burgandy Logo" class="h-11 w-11" width="44" height="44" />
       </a>
 
       <!-- Left Side: Navigation Links -->
@@ -70,11 +70,11 @@
 
     <!-- Mobile: Top Bar -->
     <div class="md:hidden flex items-center justify-between h-14" style="direction: rtl">
-      <a routerLink="/" class="flex items-center gap-2">
-        <img src="/assets/Burgandy.png" alt="Burgandy Logo" class="h-10 w-10" />
+      <a routerLink="/" class="flex items-center gap-2" aria-label="الرئيسية">
+        <img src="/assets/Burgandy.png" alt="Burgandy Logo" class="h-10 w-10" width="40" height="40" />
       </a>
 
-      <button (click)="toggleMobileMenu()" class="p-2 text-[#722F37] bg-transparent border-none">
+      <button (click)="toggleMobileMenu()" class="p-2 text-[#722F37] bg-transparent border-none" aria-label="القائمة">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             *ngIf="!mobileMenuOpen"

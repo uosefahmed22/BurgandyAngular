@@ -11,6 +11,7 @@ import { CategoryService, Category } from '@core/services';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state.component';
 import { DiscountsBannerComponent } from './discounts-banner/discounts-banner.component';
+import { CloudinaryPipe } from '../../shared/pipes/cloudinary.pipe';
 
 @Component({
   selector: 'app-home',
@@ -25,6 +26,7 @@ import { DiscountsBannerComponent } from './discounts-banner/discounts-banner.co
     LoadingSpinnerComponent,
     EmptyStateComponent,
     DiscountsBannerComponent,
+    CloudinaryPipe
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],

@@ -1,0 +1,23 @@
+# Burgandy Store
+
+## Overview
+Burgandy Store is a high-end women's fashion e-commerce platform built with Angular (Frontend) and ASP.NET Core (Backend). It allows users to browse dresses, abayas, and other clothing, view detailed product information, and make reservations that are confirmed via WhatsApp.
+
+## Technical Stack
+- **Frontend**: Angular 18 (Standalone Components, SSR, TailwindCSS)
+- **Backend**: ASP.NET Core 10 Web API, Entity Framework Core, SQL Server
+- **Authentication**: JWT
+- **Media**: Cloudinary (for optimized image delivery)
+- **Dashboard**: ASP.NET Core MVC (for administrators)
+
+## Key Features
+1. **Product Catalog**: View products by category with pagination and filtering.
+2. **Product Details**: Image gallery/carousel with zoom (lightbox), size and color selection.
+3. **Reservations**: Users can reserve items which generates a unique tracking code.
+4. **WhatsApp Integration**: After reservation, users are redirected to WhatsApp to confirm their order with a pre-filled message.
+5. **Tracking**: Users can track their reservation status using their code and phone number.
+
+## Agentic Notes
+- Images are optimized using Cloudinary transformations (`f_auto,q_auto`).
+- The application uses semantic HTML and ARIA labels for accessibility.
+- Security headers (CSP, HSTS, COOP) are strictly enforced in the backend API and Dashboard.

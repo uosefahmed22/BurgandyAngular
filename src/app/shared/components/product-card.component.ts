@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Product } from '@core/models';
 
+import { CloudinaryPipe } from '../pipes/cloudinary.pipe';
+
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CloudinaryPipe],
   templateUrl: './product-card.component.html'
 })
 export class ProductCardComponent {

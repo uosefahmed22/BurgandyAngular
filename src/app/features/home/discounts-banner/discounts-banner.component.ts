@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { CloudinaryPipe } from '../../../shared/pipes/cloudinary.pipe';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../core/models';
 
 @Component({
   selector: 'app-discounts-banner',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CloudinaryPipe],
   template: `
     @if (discountedProducts.length > 0) {
       <section class="discounts-section">
@@ -21,17 +22,21 @@ import { Product } from '../../../core/models';
           <!-- Products Grid -->
           <div class="discounts-grid">
             @for (product of discountedProducts; track product.id) {
-              <a [routerLink]="['/products', product.id]" class="discount-card">
-                <!-- Discount Badge -->
+              <article>
+                <a [routerLink]="['/products', product.id]" class="discount-card" [attr.aria-label]="'عرض تفاصيل ' + product.name">
+                  <!-- Discount Badge -->
                 <div class="discount-badge">{{ product.discountPercentage }}%−</div>
 
                 <!-- Image -->
                 <div class="discount-image-wrapper">
                   @if (product.images && product.images.length > 0) {
                     <img
-                      [src]="product.images[0].imageUrl"
+                      [src]="product.images[0].imageUrl | cloudinary"
                       [alt]="product.name"
                       class="discount-image"
+                      width="240"
+                      height="260"
+                      loading="lazy"
                     />
                   } @else {
                     <div class="discount-image-placeholder">
@@ -57,8 +62,9 @@ import { Product } from '../../../core/models';
                       باقي {{ product.discountRemainingDays }} أيام
                     }
                   </div>
-                </div>
-              </a>
+                  </div>
+                </a>
+              </article>
             }
           </div>
 

@@ -49,10 +49,13 @@
                 <!-- Carousel Images with Fade -->
                 <ng-container *ngFor="let img of product.images; let i = index">
                   <img
-                    [src]="img.imageUrl"
-                    [alt]="product.name"
+                    [src]="img.imageUrl | cloudinary"
+                    [alt]="product.name + ' image ' + (i + 1)"
                     class="absolute inset-0 w-full h-full object-contain sm:object-cover object-center transition-opacity duration-500 ease-in-out"
                     [ngClass]="{ 'opacity-100 z-10': i === selectedImageIndex, 'opacity-0 z-0': i !== selectedImageIndex }"
+                    width="600"
+                    height="800"
+                    [attr.fetchpriority]="i === 0 ? 'high' : 'auto'"
                   />
                 </ng-container>
 
@@ -123,8 +126,9 @@
                     'border-[#722F37] shadow-md': i === selectedImageIndex,
                     'border-transparent opacity-60 hover:opacity-100': i !== selectedImageIndex
                   }"
+                  [attr.aria-label]="'عرض الصورة ' + (i + 1)"
                 >
-                  <img [src]="img.imageUrl" [alt]="product.name" class="w-full h-full object-cover" />
+                  <img [src]="img.imageUrl | cloudinary:'f_auto,q_auto,w_100'" [alt]="product.name + ' thumbnail ' + (i + 1)" class="w-full h-full object-cover" width="72" height="72" loading="lazy" />
                 </button>
               </div>
             </div>
@@ -289,10 +293,13 @@
       <div class="relative max-w-[95vw] md:max-w-[90vw] max-h-[85vh] flex items-center justify-center" (click)="$event.stopPropagation()">
         <ng-container *ngFor="let img of product.images; let i = index">
           <img
-            [src]="img.imageUrl"
-            [alt]="product.name"
+            [src]="img.imageUrl | cloudinary"
+            [alt]="product.name + ' lightbox image ' + (i + 1)"
             class="max-w-full max-h-[85vh] object-contain rounded-lg transition-opacity duration-300"
             [ngClass]="{ 'block opacity-100': i === selectedImageIndex, 'hidden opacity-0': i !== selectedImageIndex }"
+            width="800"
+            height="1000"
+            loading="lazy"
           />
         </ng-container>
       </div>

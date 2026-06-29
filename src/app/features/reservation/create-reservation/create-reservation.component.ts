@@ -10,6 +10,7 @@ import { WhatsappFabComponent } from '@shared/components/whatsapp-fab.component'
 import { ProductService, ReservationService } from '@core/services';
 import { Product, CreateReservationDto, Reservation } from '@core/models';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.component';
+import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
 
 @Component({
   selector: 'app-create-reservation',
@@ -22,6 +23,7 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
     FooterComponent,
     WhatsappFabComponent,
     LoadingSpinnerComponent,
+    CloudinaryPipe
   ],
   templateUrl: './create-reservation.component.html',
 })

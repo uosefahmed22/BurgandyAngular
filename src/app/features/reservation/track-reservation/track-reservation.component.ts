@@ -9,6 +9,7 @@ import { WhatsappFabComponent } from '@shared/components/whatsapp-fab.component'
 import { ReservationService } from '@core/services';
 import { Reservation } from '@core/models';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.component';
+import { CloudinaryPipe } from '@shared/pipes/cloudinary.pipe';
 
 @Component({
   selector: 'app-track-reservation',
@@ -20,6 +21,7 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
     FooterComponent,
     WhatsappFabComponent,
     LoadingSpinnerComponent,
+    CloudinaryPipe
   ],
   template: `
     <app-header />
@@ -103,9 +105,11 @@ import { LoadingSpinnerComponent } from '@shared/components/loading-spinner.comp
             <div class="flex items-center gap-3 mb-5" style="direction: rtl">
               <img
                 *ngIf="reservation.productImageUrl"
-                [src]="reservation.productImageUrl"
+                [src]="reservation.productImageUrl | cloudinary:'f_auto,q_auto,w_100'"
                 [alt]="reservation.productName"
                 class="w-16 h-16 object-cover rounded-xl"
+                width="64"
+                height="64"
               />
               <div
                 *ngIf="!reservation.productImageUrl"
